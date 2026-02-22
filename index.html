@@ -466,7 +466,7 @@
 
         .sources-table {
             width: 100%;
-            min-width: 640px;
+            min-width: 760px;
             border-collapse: collapse;
             font-size: 12px;
         }
@@ -613,7 +613,7 @@
 
         .compiler-table {
             width: 100%;
-            min-width: 960px;
+            min-width: 1180px;
             border-collapse: collapse;
             font-size: 12px;
         }
@@ -1127,6 +1127,7 @@
                         <tr>
                             <th>Source</th>
                             <th>Status</th>
+                            <th>Reliability</th>
                             <th>Latency</th>
                             <th>Last Sync</th>
                             <th>Details</th>
@@ -1140,10 +1141,10 @@
         <section class="compiler-section">
             <h2>🧮 Score Compiler (Weight Sanity Check)</h2>
             <p class="compiler-subtitle">Inspired by calm, transparent dashboards like TranquilityTracker: every signal shows its weight, normalized impact, and why it exists in the model.</p>
-            <div class="compiler-formula" id="compilerFormula">Final Score = clamp((Σ(normalized × weight) / Σ(active weight)) × escalation multiplier, 5, 100)</div>
+            <div class="compiler-formula" id="compilerFormula">Final Score = clamp((Σ(normalized × weight × sourceReliability × freshness) / Σ(weight × sourceReliability × freshness)) × escalation multiplier, 5, 100)</div>
             <div class="compiler-stats">
                 <div class="compiler-stat">
-                    <div class="compiler-stat-label">Active Weight</div>
+                    <div class="compiler-stat-label">Effective Weight</div>
                     <div class="compiler-stat-value" id="compilerActiveWeight">--</div>
                 </div>
                 <div class="compiler-stat">
@@ -1167,6 +1168,8 @@
                             <th>Signal</th>
                             <th>Status</th>
                             <th>Weight</th>
+                            <th>Reliability</th>
+                            <th>Freshness</th>
                             <th>Source Metric</th>
                             <th>Normalized</th>
                             <th>Contribution</th>
@@ -1272,12 +1275,23 @@
 
         const SOURCES = [
             { key: 'arxiv', label: 'arXiv', fetcher: fetchArxivPapers },
+            { key: 'ailayoffs', label: 'AI Layoff Tracker', fetcher: fetchAILayoffTracker },
             { key: 'gdelt', label: 'GDELT', fetcher: fetchGDELT },
             { key: 'openrouter', label: 'OpenRouter', fetcher: fetchOpenRouter },
             { key: 'github', label: 'GitHub', fetcher: fetchGitHub },
             { key: 'wikipedia', label: 'Wikipedia', fetcher: fetchWikipedia },
             { key: 'hackernews', label: 'Hacker News', fetcher: fetchHackerNews }
         ];
+
+        const SOURCE_QUALITY = {
+            arxiv: { reliability: 0.95, url: 'https://arxiv.org' },
+            ailayoffs: { reliability: 0.88, url: 'https://www.ailayofftracker.com/' },
+            gdelt: { reliability: 0.78, url: 'https://www.gdeltproject.org/' },
+            openrouter: { reliability: 0.80, url: 'https://openrouter.ai/models' },
+            github: { reliability: 0.90, url: 'https://api.github.com' },
+            wikipedia: { reliability: 0.72, url: 'https://www.wikipedia.org' },
+            hackernews: { reliability: 0.65, url: 'https://news.ycombinator.com/' }
+        };
 
         function createEmptySourceState() {
             return {
@@ -1322,12 +1336,12 @@
             {
                 id: 'autonomy',
                 icon: '🏭',
-                title: 'Tech Layoffs',
+                title: 'AI-Attributed Layoffs',
                 status: 'normal',
-                description: 'Layoff and workforce reduction news velocity',
-                source: 'gdelt',
+                description: 'Curated AI-related layoffs from AI Layoff Tracker',
+                source: 'ailayoffs',
                 weight: 0.14,
-                reasoning: 'Direct displacement signal: layoffs are a realized impact, not just potential risk.'
+                reasoning: 'Direct displacement signal from curated layoff records with traceable source URLs.'
             },
             {
                 id: 'funding',
@@ -1437,6 +1451,76 @@
             return Number.isFinite(value) ? `${(value * 100).toFixed(digits)}%` : '--';
         }
 
+        function parseDdMmYyyyToTimestamp(input) {
+            if (typeof input !== 'string') return null;
+            const match = input.trim().match(/^(\d{2})-(\d{2})-(\d{4})$/);
+            if (!match) return null;
+            const day = Number(match[1]);
+            const month = Number(match[2]);
+            const year = Number(match[3]);
+            const timestamp = Date.UTC(year, month - 1, day);
+            return Number.isFinite(timestamp) ? timestamp : null;
+        }
+
+        function parseEmployeeCount(value) {
+            if (Number.isFinite(value)) return Math.max(0, Number(value));
+            if (typeof value !== 'string') return null;
+
+            const normalized = value.replace(/,/g, '').trim();
+            if (!normalized || normalized.includes('%')) {
+                return null;
+            }
+
+            const rangeMatch = normalized.match(/(\d+)\s*-\s*(\d+)/);
+            if (rangeMatch) {
+                const low = Number(rangeMatch[1]);
+                const high = Number(rangeMatch[2]);
+                if (Number.isFinite(low) && Number.isFinite(high)) {
+                    return Math.round((low + high) / 2);
+                }
+            }
+
+            const numberMatch = normalized.match(/(\d+)/);
+            if (!numberMatch) return null;
+            const parsed = Number(numberMatch[1]);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+
+        function getSourceReliabilityFactor(sourceKey) {
+            const sourceMeta = SOURCE_QUALITY[sourceKey];
+            if (!sourceMeta || !Number.isFinite(sourceMeta.reliability)) {
+                return 0.70;
+            }
+            return Math.max(0.5, Math.min(1, sourceMeta.reliability));
+        }
+
+        function getSourceFreshnessFactor(sourceKey, sourceState) {
+            if (!sourceState || !sourceState.success) {
+                return 0.60;
+            }
+
+            if (sourceKey === 'ailayoffs') {
+                const latestTimestamp = sourceState.raw?.latestEventTimestamp;
+                if (!Number.isFinite(latestTimestamp)) return 0.55;
+
+                const ageDays = (Date.now() - latestTimestamp) / (1000 * 60 * 60 * 24);
+                if (ageDays <= 30) return 1.00;
+                if (ageDays <= 90) return 0.90;
+                if (ageDays <= 180) return 0.75;
+                if (ageDays <= 365) return 0.55;
+                return 0.35;
+            }
+
+            const lastUpdatedTimestamp = sourceState.lastUpdated ? new Date(sourceState.lastUpdated).getTime() : null;
+            if (!Number.isFinite(lastUpdatedTimestamp)) return 0.75;
+
+            const staleMs = Date.now() - lastUpdatedTimestamp;
+            if (staleMs <= CONFIG.updateInterval * 2) return 1.00;
+            if (staleMs <= CONFIG.updateInterval * 6) return 0.90;
+            if (staleMs <= CONFIG.updateInterval * 24) return 0.75;
+            return 0.60;
+        }
+
         function formatRelativeTime(isoTimestamp) {
             if (!isoTimestamp) return '--';
             const timestamp = new Date(isoTimestamp).getTime();
@@ -1485,6 +1569,8 @@
                 raw.repos,
                 raw.totalChanges,
                 raw.aiPosts,
+                raw.totalEvents,
+                raw.recent180dEvents,
                 raw.recentWeek,
                 raw.recent
             ];
@@ -1644,6 +1730,87 @@
                 };
             } catch (error) {
                 console.warn('arXiv fetch failed:', error.message);
+                return { value: null, raw: null, success: false, error: error.message };
+            }
+        }
+
+        async function fetchAILayoffTracker() {
+            try {
+                const sourceUrl = 'https://www.ailayofftracker.com/';
+                const proxiedUrl = CONFIG.corsProxy + encodeURIComponent(sourceUrl);
+                const response = await fetchWithTimeout(proxiedUrl);
+                if (!response.ok) throw new Error('AI Layoff Tracker fetch failed');
+
+                const html = await response.text();
+                const payloadMatch = html.match(/\\\"data\\\":\[(.*?)\]\}\],\\\"\$L[0-9A-Za-z]+\\\"/s);
+                if (!payloadMatch) {
+                    throw new Error('AI Layoff Tracker payload not found');
+                }
+
+                const layoffs = JSON.parse(`[${payloadMatch[1].replace(/\\"/g, '"')}]`);
+                if (!Array.isArray(layoffs)) {
+                    throw new Error('Invalid layoff payload format');
+                }
+
+                const cutoff180d = Date.now() - (180 * 24 * 60 * 60 * 1000);
+                let totalEvents = 0;
+                let totalJobLosses = 0;
+                let recent180dEvents = 0;
+                let recent180dLosses = 0;
+                let latestEventTimestamp = null;
+                const sourceDomains = new Set();
+
+                layoffs.forEach(record => {
+                    totalEvents += 1;
+                    const eventTimestamp = parseDdMmYyyyToTimestamp(record.date);
+                    const employeeCount = parseEmployeeCount(record.employeesAffected);
+
+                    if (Number.isFinite(employeeCount)) {
+                        totalJobLosses += employeeCount;
+                    }
+                    if (Number.isFinite(eventTimestamp)) {
+                        if (!Number.isFinite(latestEventTimestamp) || eventTimestamp > latestEventTimestamp) {
+                            latestEventTimestamp = eventTimestamp;
+                        }
+                        if (eventTimestamp >= cutoff180d) {
+                            recent180dEvents += 1;
+                            if (Number.isFinite(employeeCount)) {
+                                recent180dLosses += employeeCount;
+                            }
+                        }
+                    }
+                    if (record.sourceUrl) {
+                        try {
+                            const domain = new URL(record.sourceUrl).hostname.replace(/^www\./, '');
+                            sourceDomains.add(domain);
+                        } catch {
+                            // Ignore malformed links
+                        }
+                    }
+                });
+
+                const eventComponent = Math.min(65, recent180dEvents * 5);
+                const lossComponent = Math.min(35, recent180dLosses / 800);
+                const score = Math.round(eventComponent + lossComponent);
+                const latestEventDate = Number.isFinite(latestEventTimestamp)
+                    ? new Date(latestEventTimestamp).toISOString().slice(0, 10)
+                    : null;
+
+                return {
+                    value: Math.min(100, Math.max(0, score)),
+                    raw: {
+                        totalEvents,
+                        totalJobLosses,
+                        recent180dEvents,
+                        recent180dLosses,
+                        uniqueSourceDomains: sourceDomains.size,
+                        latestEventDate,
+                        latestEventTimestamp
+                    },
+                    success: true
+                };
+            } catch (error) {
+                console.warn('AI Layoff Tracker fetch failed:', error.message);
                 return { value: null, raw: null, success: false, error: error.message };
             }
         }
@@ -1910,6 +2077,7 @@
 
         function compileScoreBreakdown() {
             let activeWeight = 0;
+            let effectiveWeight = 0;
             let weightedSum = 0;
             let elevatedCount = 0;
 
@@ -1918,7 +2086,12 @@
                 const hasData = Boolean(sourceData && sourceData.success && sourceData.value !== null);
                 const sourceValue = hasData ? sourceData.value : null;
                 const normalizedValue = hasData ? normalizeValue(signal.id, sourceValue) : null;
+                const reliabilityFactor = getSourceReliabilityFactor(signal.source);
+                const freshnessFactor = getSourceFreshnessFactor(signal.source, sourceData);
+                const qualityFactor = reliabilityFactor * freshnessFactor;
+                const effectiveSignalWeight = signal.weight * qualityFactor;
                 const weightedValue = hasData ? normalizedValue * signal.weight : 0;
+                const effectiveWeightedValue = hasData ? normalizedValue * effectiveSignalWeight : 0;
                 const status = !hasData
                     ? 'missing'
                     : normalizedValue > 60
@@ -1929,7 +2102,8 @@
 
                 if (hasData) {
                     activeWeight += signal.weight;
-                    weightedSum += weightedValue;
+                    effectiveWeight += effectiveSignalWeight;
+                    weightedSum += effectiveWeightedValue;
                 }
                 if (status === 'active' || status === 'elevated') {
                     elevatedCount += 1;
@@ -1944,11 +2118,15 @@
                     sourceValue,
                     normalizedValue,
                     weightedValue,
+                    effectiveSignalWeight,
+                    effectiveWeightedValue,
+                    reliabilityFactor,
+                    freshnessFactor,
                     reasoning: signal.reasoning
                 };
             });
 
-            const baseScore = activeWeight > 0 ? (weightedSum / activeWeight) : CONFIG.baseThreatLevel;
+            const baseScore = effectiveWeight > 0 ? (weightedSum / effectiveWeight) : CONFIG.baseThreatLevel;
 
             let escalationMultiplier = 1;
             let escalationReason = 'No escalation applied';
@@ -1963,13 +2141,14 @@
             const preClampScore = baseScore * escalationMultiplier;
             const finalScore = Math.min(CONFIG.maxThreatLevel, Math.max(CONFIG.minThreatLevel, preClampScore));
             const sourceWeightMap = rows.reduce((acc, row) => {
-                acc[row.source] = (acc[row.source] || 0) + row.weight;
+                acc[row.source] = (acc[row.source] || 0) + row.effectiveSignalWeight;
                 return acc;
             }, {});
 
             return {
                 rows,
                 activeWeight,
+                effectiveWeight,
                 weightedSum,
                 baseScore,
                 escalationMultiplier,
@@ -2063,6 +2242,7 @@
                 case 'compute':
                     return formatNumber(raw.totalModels || 0);
                 case 'autonomy':
+                    return formatNumber(raw.recent180dEvents || raw.totalEvents || 0);
                 case 'news':
                 case 'regulation':
                 case 'incidents':
@@ -2314,6 +2494,8 @@
             switch (sourceKey) {
                 case 'arxiv':
                     return `${formatNumber(raw.recentWeek || 0)} papers in last 7 days`;
+                case 'ailayoffs':
+                    return `${formatNumber(raw.recent180dEvents || 0)} events / ${formatNumber(raw.recent180dLosses || 0)} jobs (180d), latest ${raw.latestEventDate || '--'}`;
                 case 'gdelt':
                     return `${formatNumber(raw.articleCount || 0)} matching news articles`;
                 case 'openrouter':
@@ -2336,6 +2518,7 @@
             tableBody.innerHTML = SOURCES.map(source => {
                 const state = dataSources[source.key] || createEmptySourceState();
                 const status = getSourceStatus(state);
+                const reliability = getSourceReliabilityFactor(source.key);
                 const latency = Number.isFinite(state.latencyMs) ? `${state.latencyMs} ms` : '--';
                 const lastSync = formatRelativeTime(state.lastUpdated);
                 const details = formatSourceDetails(source.key, state);
@@ -2345,6 +2528,7 @@
                     <tr>
                         <td>${escapeHtml(source.label)}</td>
                         <td><span class="source-state ${status.className}">${escapeHtml(status.text)}</span></td>
+                        <td class="mono-cell">${formatPercent(reliability, 0)}</td>
                         <td class="mono-cell">${escapeHtml(latency)}</td>
                         <td class="mono-cell">${escapeHtml(lastSync)}</td>
                         <td class="${detailClass}">${escapeHtml(details)}</td>
@@ -2388,22 +2572,25 @@
                 return;
             }
 
-            activeWeightEl.textContent = formatPercent(scoreBreakdown.activeWeight, 1);
+            activeWeightEl.textContent = formatPercent(scoreBreakdown.effectiveWeight, 1);
             baseScoreEl.textContent = formatDecimal(scoreBreakdown.baseScore, 1);
             multiplierEl.textContent = `x${formatDecimal(scoreBreakdown.escalationMultiplier, 2)}`;
             finalScoreEl.textContent = formatDecimal(scoreBreakdown.finalScore, 0);
 
             const sourceWeightSummary = Object.entries(scoreBreakdown.sourceWeightMap)
                 .sort((a, b) => b[1] - a[1])
-                .map(([source, weight]) => `${source}: ${(weight * 100).toFixed(0)}%`)
+                .map(([source, weight]) => {
+                    const label = SOURCES.find(entry => entry.key === source)?.label || source;
+                    return `${label}: ${(weight * 100).toFixed(0)}%`;
+                })
                 .join(', ');
 
             notesEl.textContent =
                 `${scoreBreakdown.escalationReason}. Elevated/active signals: ${scoreBreakdown.elevatedCount}. ` +
-                `Source-weight concentration: ${sourceWeightSummary}.`;
+                `Raw active weight: ${formatPercent(scoreBreakdown.activeWeight, 1)}. Quality-adjusted source concentration: ${sourceWeightSummary}.`;
 
             const sortedRows = [...scoreBreakdown.rows]
-                .sort((a, b) => b.weightedValue - a.weightedValue);
+                .sort((a, b) => b.effectiveWeightedValue - a.effectiveWeightedValue);
 
             tableBody.innerHTML = sortedRows.map(row => {
                 const sourceState = dataSources[row.source];
@@ -2411,8 +2598,8 @@
                     ? formatSignalValue(row.id, sourceState.raw)
                     : '--';
                 const normalized = Number.isFinite(row.normalizedValue) ? formatDecimal(row.normalizedValue, 1) : '--';
-                const contributionToBase = scoreBreakdown.activeWeight > 0 && Number.isFinite(row.weightedValue)
-                    ? row.weightedValue / scoreBreakdown.activeWeight
+                const contributionToBase = scoreBreakdown.effectiveWeight > 0 && Number.isFinite(row.effectiveWeightedValue)
+                    ? row.effectiveWeightedValue / scoreBreakdown.effectiveWeight
                     : 0;
 
                 return `
@@ -2420,6 +2607,8 @@
                         <td>${escapeHtml(row.title)}</td>
                         <td><span class="compiler-status ${row.status}">${formatCompilerStatus(row.status)}</span></td>
                         <td class="mono-cell">${formatPercent(row.weight, 1)}</td>
+                        <td class="mono-cell">${formatPercent(row.reliabilityFactor, 0)}</td>
+                        <td class="mono-cell">${formatPercent(row.freshnessFactor, 0)}</td>
                         <td class="mono-cell">${escapeHtml(sourceMetric)}</td>
                         <td class="mono-cell">${normalized}</td>
                         <td class="mono-cell">${formatDecimal(contributionToBase, 1)} pts</td>
