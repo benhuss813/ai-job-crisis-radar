@@ -535,6 +535,148 @@
             white-space: nowrap;
         }
 
+        /* Score Compiler Section */
+        .compiler-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .compiler-section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .compiler-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .compiler-formula {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .compiler-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .compiler-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .compiler-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 4px;
+        }
+
+        .compiler-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .compiler-notes {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+
+        .compiler-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .compiler-table {
+            width: 100%;
+            min-width: 960px;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .compiler-table thead {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .compiler-table th,
+        .compiler-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .compiler-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .compiler-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .compiler-status.active {
+            color: var(--accent-red);
+            background: rgba(255, 51, 102, 0.12);
+            border-color: rgba(255, 51, 102, 0.35);
+        }
+
+        .compiler-status.elevated {
+            color: var(--accent-orange);
+            background: rgba(255, 107, 53, 0.12);
+            border-color: rgba(255, 107, 53, 0.35);
+        }
+
+        .compiler-status.normal {
+            color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.12);
+            border-color: rgba(0, 255, 136, 0.35);
+        }
+
+        .compiler-status.missing {
+            color: var(--accent-yellow);
+            background: rgba(255, 204, 0, 0.12);
+            border-color: rgba(255, 204, 0, 0.35);
+        }
+
+        .rationale-cell {
+            color: var(--text-secondary);
+            line-height: 1.45;
+            min-width: 220px;
+        }
+
         /* Signal Cards */
         .signals-section h2 {
             font-family: 'Space Grotesk', sans-serif;
@@ -995,6 +1137,47 @@
             </div>
         </section>
 
+        <section class="compiler-section">
+            <h2>🧮 Score Compiler (Weight Sanity Check)</h2>
+            <p class="compiler-subtitle">Inspired by calm, transparent dashboards like TranquilityTracker: every signal shows its weight, normalized impact, and why it exists in the model.</p>
+            <div class="compiler-formula" id="compilerFormula">Final Score = clamp((Σ(normalized × weight) / Σ(active weight)) × escalation multiplier, 5, 100)</div>
+            <div class="compiler-stats">
+                <div class="compiler-stat">
+                    <div class="compiler-stat-label">Active Weight</div>
+                    <div class="compiler-stat-value" id="compilerActiveWeight">--</div>
+                </div>
+                <div class="compiler-stat">
+                    <div class="compiler-stat-label">Base Composite</div>
+                    <div class="compiler-stat-value" id="compilerBaseScore">--</div>
+                </div>
+                <div class="compiler-stat">
+                    <div class="compiler-stat-label">Escalation</div>
+                    <div class="compiler-stat-value" id="compilerMultiplier">--</div>
+                </div>
+                <div class="compiler-stat">
+                    <div class="compiler-stat-label">Final Score</div>
+                    <div class="compiler-stat-value" id="compilerFinalScore">--</div>
+                </div>
+            </div>
+            <p class="compiler-notes" id="compilerNotes">Waiting for enough source data to compile a weighted breakdown.</p>
+            <div class="compiler-table-wrap">
+                <table class="compiler-table">
+                    <thead>
+                        <tr>
+                            <th>Signal</th>
+                            <th>Status</th>
+                            <th>Weight</th>
+                            <th>Source Metric</th>
+                            <th>Normalized</th>
+                            <th>Contribution</th>
+                            <th>Rationale</th>
+                        </tr>
+                    </thead>
+                    <tbody id="compilerTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
         <section class="signals-section">
             <h2>🔔 Job Market Disruption Signals</h2>
             <div class="signals-grid" id="signalsGrid">
@@ -1123,7 +1306,8 @@
                 status: 'normal',
                 description: 'AI/robotics papers on arXiv accelerating workplace automation',
                 source: 'arxiv',
-                weight: 0.20
+                weight: 0.15,
+                reasoning: 'Leading indicator: more automation research usually precedes more deployable automation in the job market.'
             },
             {
                 id: 'compute',
@@ -1132,7 +1316,8 @@
                 status: 'normal',
                 description: 'AI models and tools replacing human workflows',
                 source: 'openrouter',
-                weight: 0.15
+                weight: 0.12,
+                reasoning: 'Tool availability reduces adoption friction, making automation rollout faster across teams.'
             },
             {
                 id: 'autonomy',
@@ -1141,7 +1326,8 @@
                 status: 'normal',
                 description: 'Layoff and workforce reduction news velocity',
                 source: 'gdelt',
-                weight: 0.15
+                weight: 0.14,
+                reasoning: 'Direct displacement signal: layoffs are a realized impact, not just potential risk.'
             },
             {
                 id: 'funding',
@@ -1150,7 +1336,8 @@
                 status: 'normal',
                 description: 'Hiring freeze and job market contraction discussions',
                 source: 'hackernews',
-                weight: 0.10
+                weight: 0.09,
+                reasoning: 'Early labor contraction signal that often appears before broad layoffs.'
             },
             {
                 id: 'news',
@@ -1159,7 +1346,8 @@
                 status: 'normal',
                 description: 'Global media coverage of AI job displacement',
                 source: 'gdelt',
-                weight: 0.12
+                weight: 0.10,
+                reasoning: 'Broad trend signal that captures global momentum, but weighted lower due to media noise.'
             },
             {
                 id: 'regulation',
@@ -1168,7 +1356,8 @@
                 status: 'normal',
                 description: 'AI labor regulation and workforce protection policy news',
                 source: 'gdelt',
-                weight: 0.08
+                weight: 0.08,
+                reasoning: 'Policy intensity acts as a pressure gauge when governments react to disruption risk.'
             },
             {
                 id: 'capabilities',
@@ -1177,7 +1366,8 @@
                 status: 'normal',
                 description: 'New AI model releases threatening to replace human jobs',
                 source: 'openrouter',
-                weight: 0.15
+                weight: 0.12,
+                reasoning: 'Capability jumps can move automation from pilot to production quickly.'
             },
             {
                 id: 'incidents',
@@ -1186,7 +1376,28 @@
                 status: 'normal',
                 description: 'Unemployment spikes, economic downturn, and market disruption signals',
                 source: 'gdelt',
-                weight: 0.05
+                weight: 0.07,
+                reasoning: 'Macro shocks amplify displacement risk and reduce labor market resilience.'
+            },
+            {
+                id: 'opensource',
+                icon: '🛠️',
+                title: 'Open-Source Acceleration',
+                status: 'normal',
+                description: 'GitHub AI repository momentum and star velocity',
+                source: 'github',
+                weight: 0.08,
+                reasoning: 'Open-source velocity spreads capabilities widely and lowers the cost of replacement workflows.'
+            },
+            {
+                id: 'attention',
+                icon: '🌐',
+                title: 'Public Attention Shift',
+                status: 'normal',
+                description: 'Wikipedia edit intensity around labor and AI disruption topics',
+                source: 'wikipedia',
+                weight: 0.05,
+                reasoning: 'Public information churn is a softer signal of disruption salience and policy pressure.'
             }
         ];
 
@@ -1198,6 +1409,7 @@
         let uiRefreshTimer = null;
         let nextRefreshAt = null;
         let lastDataTimestamp = null;
+        let scoreBreakdown = null;
 
         function getCssVar(name, fallback) {
             const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -1215,6 +1427,14 @@
 
         function formatNumber(value) {
             return Number.isFinite(value) ? value.toLocaleString() : '--';
+        }
+
+        function formatDecimal(value, digits = 1) {
+            return Number.isFinite(value) ? value.toFixed(digits) : '--';
+        }
+
+        function formatPercent(value, digits = 1) {
+            return Number.isFinite(value) ? `${(value * 100).toFixed(digits)}%` : '--';
         }
 
         function formatRelativeTime(isoTimestamp) {
@@ -1673,31 +1893,92 @@
                 renderCharts();
                 renderSignals();
                 renderSourceHealth();
+                renderScoreCompiler();
                 updateNextRefreshLabel();
             }
         }
 
         function calculateThreatLevel() {
-            let totalWeight = 0;
-            let weightedSum = 0;
+            scoreBreakdown = compileScoreBreakdown();
+            currentThreatLevel = scoreBreakdown.finalScore;
 
             SIGNALS.forEach(signal => {
+                const contribution = scoreBreakdown.rows.find(row => row.id === signal.id);
+                signal.status = contribution ? contribution.status : 'normal';
+            });
+        }
+
+        function compileScoreBreakdown() {
+            let activeWeight = 0;
+            let weightedSum = 0;
+            let elevatedCount = 0;
+
+            const rows = SIGNALS.map(signal => {
                 const sourceData = dataSources[signal.source];
-                if (sourceData && sourceData.value !== null && sourceData.success) {
-                    const normalizedValue = normalizeValue(signal.id, sourceData.value);
-                    weightedSum += normalizedValue * signal.weight;
-                    totalWeight += signal.weight;
-                    signal.status = normalizedValue > 60 ? 'active' : normalizedValue > 40 ? 'elevated' : 'normal';
-                } else {
-                    signal.status = 'normal';
+                const hasData = Boolean(sourceData && sourceData.success && sourceData.value !== null);
+                const sourceValue = hasData ? sourceData.value : null;
+                const normalizedValue = hasData ? normalizeValue(signal.id, sourceValue) : null;
+                const weightedValue = hasData ? normalizedValue * signal.weight : 0;
+                const status = !hasData
+                    ? 'missing'
+                    : normalizedValue > 60
+                        ? 'active'
+                        : normalizedValue > 40
+                            ? 'elevated'
+                            : 'normal';
+
+                if (hasData) {
+                    activeWeight += signal.weight;
+                    weightedSum += weightedValue;
                 }
+                if (status === 'active' || status === 'elevated') {
+                    elevatedCount += 1;
+                }
+
+                return {
+                    id: signal.id,
+                    title: signal.title,
+                    source: signal.source,
+                    status,
+                    weight: signal.weight,
+                    sourceValue,
+                    normalizedValue,
+                    weightedValue,
+                    reasoning: signal.reasoning
+                };
             });
 
-            let score = totalWeight > 0 ? (weightedSum / totalWeight) : CONFIG.baseThreatLevel;
-            const elevatedCount = SIGNALS.filter(signal => signal.status === 'active' || signal.status === 'elevated').length;
-            if (elevatedCount >= 3) score *= 1.15;
-            if (elevatedCount >= 5) score *= 1.25;
-            currentThreatLevel = Math.min(CONFIG.maxThreatLevel, Math.max(CONFIG.minThreatLevel, score));
+            const baseScore = activeWeight > 0 ? (weightedSum / activeWeight) : CONFIG.baseThreatLevel;
+
+            let escalationMultiplier = 1;
+            let escalationReason = 'No escalation applied';
+            if (elevatedCount >= 5) {
+                escalationMultiplier = 1.25;
+                escalationReason = '5+ elevated/active signals';
+            } else if (elevatedCount >= 3) {
+                escalationMultiplier = 1.15;
+                escalationReason = '3-4 elevated/active signals';
+            }
+
+            const preClampScore = baseScore * escalationMultiplier;
+            const finalScore = Math.min(CONFIG.maxThreatLevel, Math.max(CONFIG.minThreatLevel, preClampScore));
+            const sourceWeightMap = rows.reduce((acc, row) => {
+                acc[row.source] = (acc[row.source] || 0) + row.weight;
+                return acc;
+            }, {});
+
+            return {
+                rows,
+                activeWeight,
+                weightedSum,
+                baseScore,
+                escalationMultiplier,
+                escalationReason,
+                elevatedCount,
+                preClampScore,
+                finalScore,
+                sourceWeightMap
+            };
         }
 
         function normalizeValue(signalId, value) {
@@ -1709,7 +1990,9 @@
                 news: v => Math.min(100, v),
                 regulation: v => Math.min(100, v * 2),
                 capabilities: v => Math.min(100, v * 1.5),
-                incidents: v => Math.min(100, v * 3)
+                incidents: v => Math.min(100, v * 3),
+                opensource: v => Math.min(100, v * 1.2),
+                attention: v => Math.min(100, v)
             };
 
             return normalizers[signalId] ? normalizers[signalId](value) : value;
@@ -1788,6 +2071,10 @@
                     return formatNumber(raw.totalScore || 0);
                 case 'capabilities':
                     return formatNumber(raw.recent || 0);
+                case 'opensource':
+                    return `${formatNumber(raw.repos || 0)} repos`;
+                case 'attention':
+                    return formatNumber(raw.aiChanges || 0);
                 default:
                     return '--';
             }
@@ -2066,6 +2353,82 @@
             }).join('');
         }
 
+        function formatCompilerStatus(status) {
+            switch (status) {
+                case 'active':
+                    return 'Active';
+                case 'elevated':
+                    return 'Elevated';
+                case 'normal':
+                    return 'Normal';
+                default:
+                    return 'Missing';
+            }
+        }
+
+        function renderScoreCompiler() {
+            const activeWeightEl = document.getElementById('compilerActiveWeight');
+            const baseScoreEl = document.getElementById('compilerBaseScore');
+            const multiplierEl = document.getElementById('compilerMultiplier');
+            const finalScoreEl = document.getElementById('compilerFinalScore');
+            const notesEl = document.getElementById('compilerNotes');
+            const tableBody = document.getElementById('compilerTableBody');
+
+            if (!activeWeightEl || !baseScoreEl || !multiplierEl || !finalScoreEl || !notesEl || !tableBody) {
+                return;
+            }
+
+            if (!scoreBreakdown) {
+                activeWeightEl.textContent = '--';
+                baseScoreEl.textContent = '--';
+                multiplierEl.textContent = '--';
+                finalScoreEl.textContent = '--';
+                notesEl.textContent = 'Waiting for enough source data to compile a weighted breakdown.';
+                tableBody.innerHTML = '';
+                return;
+            }
+
+            activeWeightEl.textContent = formatPercent(scoreBreakdown.activeWeight, 1);
+            baseScoreEl.textContent = formatDecimal(scoreBreakdown.baseScore, 1);
+            multiplierEl.textContent = `x${formatDecimal(scoreBreakdown.escalationMultiplier, 2)}`;
+            finalScoreEl.textContent = formatDecimal(scoreBreakdown.finalScore, 0);
+
+            const sourceWeightSummary = Object.entries(scoreBreakdown.sourceWeightMap)
+                .sort((a, b) => b[1] - a[1])
+                .map(([source, weight]) => `${source}: ${(weight * 100).toFixed(0)}%`)
+                .join(', ');
+
+            notesEl.textContent =
+                `${scoreBreakdown.escalationReason}. Elevated/active signals: ${scoreBreakdown.elevatedCount}. ` +
+                `Source-weight concentration: ${sourceWeightSummary}.`;
+
+            const sortedRows = [...scoreBreakdown.rows]
+                .sort((a, b) => b.weightedValue - a.weightedValue);
+
+            tableBody.innerHTML = sortedRows.map(row => {
+                const sourceState = dataSources[row.source];
+                const sourceMetric = sourceState && sourceState.success && sourceState.raw
+                    ? formatSignalValue(row.id, sourceState.raw)
+                    : '--';
+                const normalized = Number.isFinite(row.normalizedValue) ? formatDecimal(row.normalizedValue, 1) : '--';
+                const contributionToBase = scoreBreakdown.activeWeight > 0 && Number.isFinite(row.weightedValue)
+                    ? row.weightedValue / scoreBreakdown.activeWeight
+                    : 0;
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(row.title)}</td>
+                        <td><span class="compiler-status ${row.status}">${formatCompilerStatus(row.status)}</span></td>
+                        <td class="mono-cell">${formatPercent(row.weight, 1)}</td>
+                        <td class="mono-cell">${escapeHtml(sourceMetric)}</td>
+                        <td class="mono-cell">${normalized}</td>
+                        <td class="mono-cell">${formatDecimal(contributionToBase, 1)} pts</td>
+                        <td class="rationale-cell">${escapeHtml(row.reasoning)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         // ============================================
         // INTERVALS AND CONTROLS
         // ============================================
@@ -2186,12 +2549,14 @@
             if (!hydrated) {
                 preloadInitialData();
             }
+            calculateThreatLevel();
 
             bindControls();
             setupSuggestionForm();
             renderSignals();
             renderCharts();
             renderSourceHealth();
+            renderScoreCompiler();
             updateGauge();
             updateLoadingState();
             updateLastUpdated(lastDataTimestamp);
