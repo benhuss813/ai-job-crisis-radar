@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Crisis Radar | Real-Time Employment Disruption Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e14;
+            --bg-secondary: #12181f;
+            --bg-card: #161d26;
+            --bg-card-hover: #1c2530;
+            --accent-green: #00ff88;
+            --accent-yellow: #ffcc00;
+            --accent-orange: #ff6b35;
+            --accent-red: #ff3366;
+            --accent-cyan: #00d4ff;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --border-color: #21262d;
+            --glow-green: 0 0 20px rgba(0, 255, 136, 0.3);
+            --glow-red: 0 0 20px rgba(255, 51, 102, 0.3);
+            --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            font-size: 28px;
+            filter: drop-shadow(0 0 10px var(--accent-cyan));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        .title-group h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .title-group span {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent-green);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-green);
+        }
+
+        .live-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .last-updated {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Donation Banner */
+        .donation-banner {
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.1), rgba(0, 255, 136, 0.1));
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .donation-banner p {
+            font-size: 13px;
+        }
+
+        .donation-banner a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .donation-banner a:hover {
+            text-decoration: underline;
+        }
+
+        /* Controls */
+        .control-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .control-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 10px 16px;
+            background: var(--accent-cyan);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-primary);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .control-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .control-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        .control-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .control-select {
+            padding: 10px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .control-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Main Gauge */
+        .gauge-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-yellow), var(--accent-orange), var(--accent-red));
+        }
+
+        .gauge-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .gauge-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 20px;
+        }
+
+        .gauge-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 180deg,
+                var(--accent-green) 0deg,
+                var(--accent-yellow) 120deg,
+                var(--accent-orange) 180deg,
+                var(--accent-red) 240deg,
+                var(--accent-red) 270deg,
+                transparent 270deg
+            );
+            opacity: 0.2;
+        }
+
+        .gauge-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 180deg,
+                var(--accent-green) 0deg,
+                var(--accent-yellow) calc(var(--threat-level) * 1.2deg),
+                var(--accent-red) calc(var(--threat-level) * 1.2deg),
+                transparent calc(var(--threat-level) * 1.2deg)
+            );
+            filter: drop-shadow(0 0 15px var(--accent-red));
+            transition: all 1s ease;
+        }
+
+        .gauge-inner {
+            position: absolute;
+            top: 15%;
+            left: 15%;
+            width: 70%;
+            height: 70%;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-value {
+            font-size: 64px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1;
+            transition: color 0.5s ease;
+        }
+
+        .gauge-percent {
+            font-size: 24px;
+            color: var(--text-secondary);
+        }
+
+        .threat-label {
+            font-size: 16px;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .threat-low {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--accent-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .threat-elevated {
+            background: rgba(255, 204, 0, 0.1);
+            color: var(--accent-yellow);
+            border: 1px solid var(--accent-yellow);
+        }
+
+        .threat-high {
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+        }
+
+        .threat-critical {
+            background: rgba(255, 51, 102, 0.1);
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+            animation: critical-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes critical-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 51, 102, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(255, 51, 102, 0.6); }
+        }
+
+        /* Risk Projection */
+        .projection-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .projection-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .projection-header h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .projection-stats {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-container {
+            height: 200px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Trend Chart Section */
+        .trend-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .trend-section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .trend-chart {
+            height: 180px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        /* Source Health Section */
+        .sources-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .sources-section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .sources-table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .sources-table {
+            width: 100%;
+            min-width: 640px;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .sources-table thead {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .sources-table th,
+        .sources-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .sources-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .source-state {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 700;
+        }
+
+        .state-ok {
+            color: var(--accent-green);
+            background: rgba(0, 255, 136, 0.1);
+            border-color: rgba(0, 255, 136, 0.35);
+        }
+
+        .state-fail {
+            color: var(--accent-red);
+            background: rgba(255, 51, 102, 0.1);
+            border-color: rgba(255, 51, 102, 0.35);
+        }
+
+        .state-pending {
+            color: var(--accent-yellow);
+            background: rgba(255, 204, 0, 0.1);
+            border-color: rgba(255, 204, 0, 0.35);
+        }
+
+        .source-error {
+            color: #f28b9f;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 280px;
+        }
+
+        .source-detail {
+            color: var(--text-secondary);
+        }
+
+        .mono-cell {
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        /* Signal Cards */
+        .signals-section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .signal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .signal-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+
+        .signal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .signal-icon {
+            font-size: 24px;
+        }
+
+        .signal-title {
+            flex: 1;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .signal-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        .signal-status.active {
+            background: var(--accent-red);
+            box-shadow: 0 0 10px var(--accent-red);
+        }
+
+        .signal-status.elevated {
+            background: var(--accent-orange);
+            box-shadow: 0 0 10px var(--accent-orange);
+        }
+
+        .signal-status.normal {
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .signal-value {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            margin-bottom: 8px;
+        }
+
+        .signal-description {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .signal-info {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: help;
+        }
+
+        /* Methodology */
+        .methodology-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .methodology-section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .methodology-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .methodology-content p {
+            margin-bottom: 12px;
+        }
+
+        .methodology-content strong {
+            color: var(--text-primary);
+        }
+
+        .methodology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .method-card {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-cyan);
+        }
+
+        .method-card h4 {
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: var(--accent-cyan);
+        }
+
+        .method-card p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        /* Suggestion Form */
+        .suggestion-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .suggestion-section h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .suggestion-form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .suggestion-form input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .suggestion-form input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        .suggestion-form input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .suggestion-form button {
+            padding: 12px 24px;
+            background: var(--accent-cyan);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg-primary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-form button:hover {
+            background: #00b8e0;
+            transform: translateY(-2px);
+        }
+
+        .suggestion-status {
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-cyan);
+        }
+
+        .footer-disclaimer {
+            font-size: 11px;
+            color: var(--text-muted);
+            max-width: 600px;
+            text-align: right;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .gauge-value {
+                font-size: 48px;
+            }
+
+            .gauge-container {
+                width: 220px;
+                height: 220px;
+            }
+
+            .projection-stats {
+                justify-content: center;
+            }
+
+            .control-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-disclaimer {
+                text-align: center;
+            }
+        }
+
+        /* Cookie Banner */
+        .cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .cookie-banner p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .cookie-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .cookie-buttons button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cookie-accept {
+            background: var(--accent-green);
+            border: none;
+            color: var(--bg-primary);
+        }
+
+        .cookie-reject {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <span class="logo">📉</span>
+                    <div class="title-group">
+                        <h1>AI JOB CRISIS RADAR</h1>
+                        <span>Employment Disruption Monitor</span>
+                    </div>
+                </div>
+                <div class="live-badge">
+                    <span>LIVE</span>
+                </div>
+                <div class="last-updated">
+                    Last updated: <span id="lastUpdated">--</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="donation-banner">
+            <p>📉 This is a simulation for educational purposes. Tracking AI's impact on employment markets.</p>
+            <a href="#">Support the Project →</a>
+        </div>
+
+        <section class="control-section">
+            <div class="control-row">
+                <div class="control-actions">
+                    <button class="control-btn" id="refreshNowBtn" type="button">Refresh Now</button>
+                    <label class="control-label" for="refreshCadence">Auto refresh</label>
+                    <select class="control-select" id="refreshCadence">
+                        <option value="60000">Every 1 minute</option>
+                        <option value="300000" selected>Every 5 minutes</option>
+                        <option value="900000">Every 15 minutes</option>
+                    </select>
+                </div>
+                <div class="control-meta" id="nextRefreshLabel">Next refresh: --</div>
+            </div>
+        </section>
+
+        <section class="gauge-section">
+            <div class="gauge-label">Job Market Crash Index</div>
+            <div class="gauge-container" id="gaugeContainer">
+                <div class="gauge-bg"></div>
+                <div class="gauge-ring" id="gaugeRing"></div>
+                <div class="gauge-inner">
+                    <div class="gauge-value" id="gaugeValue">--</div>
+                    <div class="gauge-percent">%</div>
+                </div>
+            </div>
+            <div class="threat-label threat-low" id="threatLabel">Calculating...</div>
+        </section>
+
+        <section class="projection-section">
+            <div class="projection-header">
+                <h2>📊 Displacement Projection</h2>
+                <div class="projection-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="watchers">--</div>
+                        <div class="stat-label">Active Sources</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="dataPoints">--</div>
+                        <div class="stat-label">Data Points</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="confidence">--</div>
+                        <div class="stat-label">Confidence</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="sourceStatus" style="color: var(--accent-green); font-size: 16px;">●</div>
+                        <div class="stat-label">Data Status</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas class="chart-canvas" id="projectionChart"></canvas>
+            </div>
+        </section>
+
+        <section class="trend-section">
+            <h2>📈 72-Hour Employment Threat Trajectory</h2>
+            <div class="trend-chart">
+                <canvas class="chart-canvas" id="trendChart"></canvas>
+            </div>
+        </section>
+
+        <section class="sources-section">
+            <h2>🛰️ Source Health</h2>
+            <div class="sources-table-wrap">
+                <table class="sources-table">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Status</th>
+                            <th>Latency</th>
+                            <th>Last Sync</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sourcesTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="signals-section">
+            <h2>🔔 Job Market Disruption Signals</h2>
+            <div class="signals-grid" id="signalsGrid">
+                <!-- Signal cards will be injected by JS -->
+            </div>
+        </section>
+
+        <section class="methodology-section">
+            <h2>📋 Methodology</h2>
+            <div class="methodology-content">
+                <p>The Job Market Crash Index is calculated using a composite algorithm that analyzes multiple real-time signals related to AI-driven workforce displacement, automation proliferation, hiring trends, and economic disruption indicators.</p>
+                <div class="methodology-grid">
+                    <div class="method-card">
+                        <h4>📰 Layoff Tracking</h4>
+                        <p>NLP analysis of global news for layoff announcements, hiring freezes, and workforce reductions</p>
+                    </div>
+                    <div class="method-card">
+                        <h4>🤖 Automation Velocity</h4>
+                        <p>Tracking AI/robotics research output and new model releases that automate human tasks</p>
+                    </div>
+                    <div class="method-card">
+                        <h4>🧰 Tool Proliferation</h4>
+                        <p>Monitoring the rate of new AI tools and models entering the market</p>
+                    </div>
+                    <div class="method-card">
+                        <h4>📉 Economic Signals</h4>
+                        <p>Aggregating unemployment indicators, hiring sentiment, and labor market disruption data</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="suggestion-section">
+            <h2>💡 Suggest New Employment Signals</h2>
+            <form class="suggestion-form" id="suggestionForm">
+                <input type="email" id="suggestionEmail" name="email" placeholder="Enter your email (optional)">
+                <input type="text" id="suggestionText" name="signal" placeholder="Suggest a job market data source or signal..." required>
+                <button type="submit">Submit</button>
+            </form>
+            <p class="suggestion-status" id="suggestionStatus" aria-live="polite"></p>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="#">About</a>
+                    <a href="#">Methodology</a>
+                    <a href="#">Share</a>
+                    <a href="#">Contact</a>
+                </div>
+                <div class="footer-disclaimer">
+                    This is a simulation/educational project. Not financial or career advice. Data sources are real but the index is generated for demonstration purposes.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="cookie-banner" id="cookieBanner">
+        <p>We use cookies to track your employment anxiety. Just kidding, we don't actually track anything. But here we are.</p>
+        <div class="cookie-buttons">
+            <button class="cookie-reject" onclick="rejectCookies()">Reject</button>
+            <button class="cookie-accept" onclick="acceptCookies()">Accept</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // AI JOB CRISIS RADAR - Runtime
+        // ============================================
+
+        const CONFIG = {
+            refreshInterval: 15000, // UI ticker
+            updateInterval: 300000, // 5 minutes
+            fetchTimeoutMs: 15000,
+            baseThreatLevel: 15,
+            maxThreatLevel: 100,
+            minThreatLevel: 5,
+            corsProxy: 'https://api.allorigins.win/raw?url='
+        };
+
+        const STORAGE_KEYS = {
+            history: 'aiJobCrashRadar.history.v2',
+            snapshot: 'aiJobCrashRadar.snapshot.v2',
+            settings: 'aiJobCrashRadar.settings.v2',
+            suggestions: 'aiJobCrashRadar.suggestions.v1'
+        };
+
+        const MAX_HISTORY = 72;
+        const ALLOWED_INTERVALS = [60000, 300000, 900000];
+
+        const SOURCES = [
+            { key: 'arxiv', label: 'arXiv', fetcher: fetchArxivPapers },
+            { key: 'gdelt', label: 'GDELT', fetcher: fetchGDELT },
+            { key: 'openrouter', label: 'OpenRouter', fetcher: fetchOpenRouter },
+            { key: 'github', label: 'GitHub', fetcher: fetchGitHub },
+            { key: 'wikipedia', label: 'Wikipedia', fetcher: fetchWikipedia },
+            { key: 'hackernews', label: 'Hacker News', fetcher: fetchHackerNews }
+        ];
+
+        function createEmptySourceState() {
+            return {
+                value: null,
+                raw: null,
+                success: false,
+                error: null,
+                lastUpdated: null,
+                latencyMs: null
+            };
+        }
+
+        let dataSources = SOURCES.reduce((acc, source) => {
+            acc[source.key] = createEmptySourceState();
+            return acc;
+        }, {});
+
+        let historicalData = [];
+
+        // Signal definitions with data source mappings
+        const SIGNALS = [
+            {
+                id: 'research',
+                icon: '🤖',
+                title: 'AI Automation Wave',
+                status: 'normal',
+                description: 'AI/robotics papers on arXiv accelerating workplace automation',
+                source: 'arxiv',
+                weight: 0.20
+            },
+            {
+                id: 'compute',
+                icon: '🧰',
+                title: 'AI Tool Proliferation',
+                status: 'normal',
+                description: 'AI models and tools replacing human workflows',
+                source: 'openrouter',
+                weight: 0.15
+            },
+            {
+                id: 'autonomy',
+                icon: '🏭',
+                title: 'Tech Layoffs',
+                status: 'normal',
+                description: 'Layoff and workforce reduction news velocity',
+                source: 'gdelt',
+                weight: 0.15
+            },
+            {
+                id: 'funding',
+                icon: '🧊',
+                title: 'Hiring Freeze Signals',
+                status: 'normal',
+                description: 'Hiring freeze and job market contraction discussions',
+                source: 'hackernews',
+                weight: 0.10
+            },
+            {
+                id: 'news',
+                icon: '📰',
+                title: 'Workforce Displacement News',
+                status: 'normal',
+                description: 'Global media coverage of AI job displacement',
+                source: 'gdelt',
+                weight: 0.12
+            },
+            {
+                id: 'regulation',
+                icon: '⚖️',
+                title: 'AI Labor Policy',
+                status: 'normal',
+                description: 'AI labor regulation and workforce protection policy news',
+                source: 'gdelt',
+                weight: 0.08
+            },
+            {
+                id: 'capabilities',
+                icon: '⚡',
+                title: 'AI Capability Surge',
+                status: 'normal',
+                description: 'New AI model releases threatening to replace human jobs',
+                source: 'openrouter',
+                weight: 0.15
+            },
+            {
+                id: 'incidents',
+                icon: '📉',
+                title: 'Economic Disruption Events',
+                status: 'normal',
+                description: 'Unemployment spikes, economic downturn, and market disruption signals',
+                source: 'gdelt',
+                weight: 0.05
+            }
+        ];
+
+        // State
+        let currentThreatLevel = CONFIG.baseThreatLevel;
+        let isLoading = false;
+        let useFallback = false;
+        let dataRefreshTimer = null;
+        let uiRefreshTimer = null;
+        let nextRefreshAt = null;
+        let lastDataTimestamp = null;
+
+        function getCssVar(name, fallback) {
+            const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            return value || fallback;
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatNumber(value) {
+            return Number.isFinite(value) ? value.toLocaleString() : '--';
+        }
+
+        function formatRelativeTime(isoTimestamp) {
+            if (!isoTimestamp) return '--';
+            const timestamp = new Date(isoTimestamp).getTime();
+            if (!Number.isFinite(timestamp)) return '--';
+
+            const deltaSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+            if (deltaSeconds < 60) return `${deltaSeconds}s ago`;
+            const minutes = Math.floor(deltaSeconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return new Date(timestamp).toLocaleString();
+        }
+
+        function updateNextRefreshLabel() {
+            const label = document.getElementById('nextRefreshLabel');
+            if (!label) return;
+            if (isLoading) {
+                label.textContent = 'Refreshing data...';
+                return;
+            }
+            if (!nextRefreshAt) {
+                label.textContent = 'Next refresh: --';
+                return;
+            }
+
+            const remainingSeconds = Math.max(0, Math.floor((nextRefreshAt - Date.now()) / 1000));
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            label.textContent = `Next refresh: ${minutes}m ${seconds}s`;
+        }
+
+        function setRefreshButtonState() {
+            const button = document.getElementById('refreshNowBtn');
+            if (!button) return;
+            button.disabled = isLoading;
+            button.textContent = isLoading ? 'Refreshing...' : 'Refresh Now';
+        }
+
+        function estimateDataPoints(sourceState) {
+            if (!sourceState || !sourceState.success || !sourceState.raw) return 0;
+            const raw = sourceState.raw;
+            const candidates = [
+                raw.articleCount,
+                raw.totalModels,
+                raw.repos,
+                raw.totalChanges,
+                raw.aiPosts,
+                raw.recentWeek,
+                raw.recent
+            ];
+            const found = candidates.find(value => Number.isFinite(value));
+            return Number.isFinite(found) ? found : 1;
+        }
+
+        function preloadInitialData() {
+            SOURCES.forEach(source => {
+                dataSources[source.key] = createEmptySourceState();
+            });
+        }
+
+        function withFallback(source, result) {
+            if (result && result.success && result.value !== null) {
+                return result;
+            }
+            useFallback = true;
+            return {
+                value: null,
+                raw: null,
+                success: false,
+                error: (result && result.error) || `${source} fetch failed`
+            };
+        }
+
+        function saveAppState() {
+            try {
+                localStorage.setItem(
+                    STORAGE_KEYS.history,
+                    JSON.stringify(
+                        historicalData.slice(-MAX_HISTORY).map(point => ({
+                            timestamp: point.timestamp,
+                            level: point.level
+                        }))
+                    )
+                );
+                localStorage.setItem(
+                    STORAGE_KEYS.snapshot,
+                    JSON.stringify({
+                        currentThreatLevel,
+                        dataSources,
+                        lastDataTimestamp
+                    })
+                );
+                localStorage.setItem(
+                    STORAGE_KEYS.settings,
+                    JSON.stringify({
+                        updateInterval: CONFIG.updateInterval
+                    })
+                );
+            } catch (error) {
+                console.warn('Saving state failed:', error.message);
+            }
+        }
+
+        function loadAppState() {
+            let hasState = false;
+
+            try {
+                const settings = JSON.parse(localStorage.getItem(STORAGE_KEYS.settings) || 'null');
+                if (settings && Number.isFinite(settings.updateInterval)) {
+                    CONFIG.updateInterval = settings.updateInterval;
+                }
+
+                const snapshot = JSON.parse(localStorage.getItem(STORAGE_KEYS.snapshot) || 'null');
+                if (snapshot && typeof snapshot === 'object') {
+                    if (Number.isFinite(snapshot.currentThreatLevel)) {
+                        currentThreatLevel = snapshot.currentThreatLevel;
+                    }
+                    if (snapshot.lastDataTimestamp) {
+                        lastDataTimestamp = snapshot.lastDataTimestamp;
+                    }
+                    if (snapshot.dataSources && typeof snapshot.dataSources === 'object') {
+                        SOURCES.forEach(source => {
+                            const persisted = snapshot.dataSources[source.key];
+                            if (persisted && typeof persisted === 'object') {
+                                dataSources[source.key] = {
+                                    ...createEmptySourceState(),
+                                    value: Number.isFinite(persisted.value) ? persisted.value : null,
+                                    raw: persisted.raw || null,
+                                    success: Boolean(persisted.success),
+                                    error: persisted.error || null,
+                                    lastUpdated: persisted.lastUpdated || null,
+                                    latencyMs: Number.isFinite(persisted.latencyMs) ? persisted.latencyMs : null
+                                };
+                            }
+                        });
+                        hasState = true;
+                    }
+                }
+
+                const persistedHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.history) || 'null');
+                if (Array.isArray(persistedHistory)) {
+                    historicalData = persistedHistory
+                        .filter(point => point && Number.isFinite(point.level) && Number.isFinite(point.timestamp))
+                        .slice(-MAX_HISTORY);
+                    hasState = hasState || historicalData.length > 0;
+                }
+            } catch (error) {
+                console.warn('Loading state failed:', error.message);
+            }
+
+            if (!ALLOWED_INTERVALS.includes(CONFIG.updateInterval)) {
+                CONFIG.updateInterval = 300000;
+            }
+
+            return hasState;
+        }
+
+        async function fetchWithTimeout(url, options = {}, timeoutMs = CONFIG.fetchTimeoutMs) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+            try {
+                return await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        // ============================================
+        // DATA FETCHING FUNCTIONS
+        // ============================================
+
+        async function fetchArxivPapers() {
+            try {
+                const categories = 'cat:cs.AI+OR+cat:cs.LG+OR+cat:cs.RO+OR+cat:cs.CV+OR+cat:cs.MA';
+                const url = `https://export.arxiv.org/api/query?search_query=${categories}&max_results=100&sortBy=submittedDate&sortOrder=descending`;
+                const proxiedUrl = CONFIG.corsProxy + encodeURIComponent(url);
+
+                const response = await fetchWithTimeout(proxiedUrl);
+                if (!response.ok) throw new Error('arXiv fetch failed');
+
+                const text = await response.text();
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(text, 'text/xml');
+                const entries = xml.querySelectorAll('entry');
+
+                const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                let recentCount = 0;
+
+                entries.forEach(entry => {
+                    const published = new Date(entry.querySelector('published')?.textContent || '').getTime();
+                    if (Number.isFinite(published) && published >= weekAgo) {
+                        recentCount += 1;
+                    }
+                });
+
+                return {
+                    value: Math.min(100, recentCount),
+                    raw: { total: entries.length, recentWeek: recentCount },
+                    success: true
+                };
+            } catch (error) {
+                console.warn('arXiv fetch failed:', error.message);
+                return { value: null, raw: null, success: false, error: error.message };
+            }
+        }
+
+        async function fetchGDELT() {
+            try {
+                const queries = ['AI layoffs', 'AI job displacement', 'workforce automation', 'hiring freeze AI'];
+                let totalArticles = 0;
+
+                for (const query of queries.slice(0, 2)) {
+                    const url = `https://api.gdeltproject.org/api/v2/article/article?format=json&query=${encodeURIComponent(query)}&mode=artlist&maxrecords=50&sort=DateDesc`;
+                    const proxiedUrl = CONFIG.corsProxy + encodeURIComponent(url);
+                    const response = await fetchWithTimeout(proxiedUrl);
+                    if (!response.ok) continue;
+                    const data = await response.json();
+                    totalArticles += data.articles?.length || 0;
+                }
+
+                return {
+                    value: Math.min(100, Math.floor(totalArticles / 2)),
+                    raw: { articleCount: totalArticles },
+                    success: true
+                };
+            } catch (error) {
+                console.warn('GDELT fetch failed:', error.message);
+                return { value: null, raw: null, success: false, error: error.message };
+            }
+        }
+
+        async function fetchOpenRouter() {
+            try {
+                const proxiedUrl = CONFIG.corsProxy + encodeURIComponent('https://openrouter.ai/api/v1/models');
+                const response = await fetchWithTimeout(proxiedUrl);
+                if (!response.ok) throw new Error('OpenRouter fetch failed');
+
+                const data = await response.json();
+                const models = data.data || [];
+
+                const monthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+                const recentModels = models.filter(model => {
+                    const createdAt = Number(model.created) * 1000;
+                    return Number.isFinite(createdAt) && createdAt >= monthAgo;
+                });
+
+                const advancedKeywords = ['reasoning', 'o1', 'o3', 'o4', 'claude', 'gpt', 'gemini', 'deepseek'];
+                const advancedCount = models.filter(model => {
+                    const id = String(model.id || '').toLowerCase();
+                    return advancedKeywords.some(keyword => id.includes(keyword));
+                }).length;
+
+                const score = Math.min(100, Math.floor((recentModels.length * 3) + (advancedCount * 0.5)));
+
+                return {
+                    value: score,
+                    raw: { totalModels: models.length, recent: recentModels.length, advanced: advancedCount },
+                    success: true
+                };
+            } catch (error) {
+                console.warn('OpenRouter fetch failed:', error.message);
+                return { value: null, raw: null, success: false, error: error.message };
+            }
+        }
+
+        async function fetchGitHub() {
+            try {
+                const sinceDate = new Date(Date.now() - (90 * 24 * 60 * 60 * 1000)).toISOString().slice(0, 10);
+                const queries = [
+                    `topic:artificial-intelligence created:>${sinceDate}`,
+                    `topic:llm created:>${sinceDate}`,
+                    `topic:machine-learning created:>${sinceDate}`
+                ];
+
+                let totalStars = 0;
+                let repoCount = 0;
+
+                for (const query of queries) {
+                    const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=10`;
+                    const response = await fetchWithTimeout(url, {
+                        headers: { 'Accept': 'application/vnd.github.v3+json' }
+                    });
+                    if (!response.ok) continue;
+                    const data = await response.json();
+                    if (!Array.isArray(data.items)) continue;
+
+                    data.items.forEach(repo => {
+                        totalStars += Number(repo.stargazers_count) || 0;
+                        repoCount += 1;
+                    });
+                }
+
+                return {
+                    value: Math.min(100, Math.floor(totalStars / 500)),
+                    raw: { repos: repoCount, stars: totalStars },
+                    success: true
+                };
+            } catch (error) {
+                console.warn('GitHub fetch failed:', error.message);
+                return { value: null, raw: null, success: false, error: error.message };
+            }
+        }
+
+        async function fetchWikipedia() {
+            try {
+                const url = `https://en.wikipedia.org/w/api.php?action=query&list=recentchanges&rcnamespace=0&rcprop=title|timestamp|comment&rclimit=50&rcstart=${new Date().toISOString()}&format=json&origin=*`;
+                const response = await fetchWithTimeout(url);
+                if (!response.ok) throw new Error('Wikipedia fetch failed');
+
+                const data = await response.json();
+                const changes = data.query?.recentchanges || [];
+                const aiKeywords = ['artificial intelligence', 'automation', 'unemployment', 'layoff', 'job displacement', 'workforce', 'labor market', 'employment', 'robotics'];
+
+                const aiChanges = changes.filter(change => {
+                    const title = String(change.title || '').toLowerCase();
+                    return aiKeywords.some(keyword => title.includes(keyword));
+                });
+
+                return {
+                    value: Math.min(100, aiChanges.length * 10),
+                    raw: { totalChanges: changes.length, aiChanges: aiChanges.length },
+                    success: true
+                };
+            } catch (error) {
+                console.warn('Wikipedia fetch failed:', error.message);
+                return { value: null, raw: null, success: false, error: error.message };
+            }
+        }
+
+        async function fetchHackerNews() {
+            try {
+                const response = await fetchWithTimeout('https://hacker-news.firebaseio.com/v0/topstories.json');
+                if (!response.ok) throw new Error('HN top stories fetch failed');
+
+                const storyIds = await response.json();
+                const topIds = Array.isArray(storyIds) ? storyIds.slice(0, 20) : [];
+                const aiKeywords = ['ai', 'layoff', 'hiring freeze', 'unemployment', 'replaced by ai', 'job loss', 'automation', 'workforce', 'llm', 'gpt', 'claude', 'job market', 'downsizing'];
+
+                const stories = await Promise.all(topIds.map(async id => {
+                    try {
+                        const itemResponse = await fetchWithTimeout(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+                        if (!itemResponse.ok) return null;
+                        return await itemResponse.json();
+                    } catch {
+                        return null;
+                    }
+                }));
+
+                let aiCount = 0;
+                let totalScore = 0;
+
+                stories.forEach(story => {
+                    if (!story || !story.title) return;
+                    const title = String(story.title).toLowerCase();
+                    if (aiKeywords.some(keyword => title.includes(keyword))) {
+                        aiCount += 1;
+                        totalScore += Number(story.score) || 0;
+                    }
+                });
+
+                const score = Math.min(100, Math.floor((aiCount * 5) + (totalScore / 100)));
+                return {
+                    value: score,
+                    raw: { aiPosts: aiCount, totalScore },
+                    success: true
+                };
+            } catch (error) {
+                console.warn('Hacker News fetch failed:', error.message);
+                return { value: null, raw: null, success: false, error: error.message };
+            }
+        }
+
+        async function runSourceFetch(source) {
+            const startedAt = performance.now();
+            const fetchedAt = new Date().toISOString();
+
+            try {
+                const result = await source.fetcher();
+                const normalized = withFallback(source.key, result || { success: false, error: 'empty result' });
+
+                return {
+                    key: source.key,
+                    state: {
+                        ...createEmptySourceState(),
+                        ...normalized,
+                        error: normalized.error || null,
+                        lastUpdated: fetchedAt,
+                        latencyMs: Math.max(1, Math.round(performance.now() - startedAt))
+                    }
+                };
+            } catch (error) {
+                const normalized = withFallback(source.key, { success: false, error: error.message });
+                return {
+                    key: source.key,
+                    state: {
+                        ...createEmptySourceState(),
+                        ...normalized,
+                        error: normalized.error || 'fetch failed',
+                        lastUpdated: fetchedAt,
+                        latencyMs: Math.max(1, Math.round(performance.now() - startedAt))
+                    }
+                };
+            }
+        }
+
+        // ============================================
+        // MAIN DATA FETCHER
+        // ============================================
+
+        async function fetchAllData() {
+            if (isLoading) return;
+            isLoading = true;
+            useFallback = false;
+            updateLoadingState();
+            updateNextRefreshLabel();
+
+            try {
+                const results = await Promise.all(SOURCES.map(source => runSourceFetch(source)));
+                results.forEach(result => {
+                    dataSources[result.key] = result.state;
+                });
+
+                calculateThreatLevel();
+
+                historicalData.push({
+                    timestamp: Date.now(),
+                    level: currentThreatLevel
+                });
+
+                if (historicalData.length > MAX_HISTORY) {
+                    historicalData = historicalData.slice(-MAX_HISTORY);
+                }
+
+                lastDataTimestamp = new Date().toISOString();
+                nextRefreshAt = Date.now() + CONFIG.updateInterval;
+                saveAppState();
+            } catch (error) {
+                console.warn('Data refresh failed:', error.message);
+            } finally {
+                if (dataRefreshTimer) {
+                    clearInterval(dataRefreshTimer);
+                    dataRefreshTimer = setInterval(fetchAllData, CONFIG.updateInterval);
+                }
+                nextRefreshAt = Date.now() + CONFIG.updateInterval;
+                isLoading = false;
+                updateLoadingState();
+                updateLastUpdated(lastDataTimestamp);
+                updateGauge();
+                renderCharts();
+                renderSignals();
+                renderSourceHealth();
+                updateNextRefreshLabel();
+            }
+        }
+
+        function calculateThreatLevel() {
+            let totalWeight = 0;
+            let weightedSum = 0;
+
+            SIGNALS.forEach(signal => {
+                const sourceData = dataSources[signal.source];
+                if (sourceData && sourceData.value !== null && sourceData.success) {
+                    const normalizedValue = normalizeValue(signal.id, sourceData.value);
+                    weightedSum += normalizedValue * signal.weight;
+                    totalWeight += signal.weight;
+                    signal.status = normalizedValue > 60 ? 'active' : normalizedValue > 40 ? 'elevated' : 'normal';
+                } else {
+                    signal.status = 'normal';
+                }
+            });
+
+            let score = totalWeight > 0 ? (weightedSum / totalWeight) : CONFIG.baseThreatLevel;
+            const elevatedCount = SIGNALS.filter(signal => signal.status === 'active' || signal.status === 'elevated').length;
+            if (elevatedCount >= 3) score *= 1.15;
+            if (elevatedCount >= 5) score *= 1.25;
+            currentThreatLevel = Math.min(CONFIG.maxThreatLevel, Math.max(CONFIG.minThreatLevel, score));
+        }
+
+        function normalizeValue(signalId, value) {
+            const normalizers = {
+                research: v => Math.min(100, v),
+                compute: v => Math.min(100, v * 2),
+                autonomy: v => Math.min(100, v),
+                funding: v => Math.min(100, v),
+                news: v => Math.min(100, v),
+                regulation: v => Math.min(100, v * 2),
+                capabilities: v => Math.min(100, v * 1.5),
+                incidents: v => Math.min(100, v * 3)
+            };
+
+            return normalizers[signalId] ? normalizers[signalId](value) : value;
+        }
+
+        // ============================================
+        // UI RENDERING
+        // ============================================
+
+        function updateLoadingState() {
+            const gaugeValue = document.getElementById('gaugeValue');
+            if (gaugeValue) {
+                gaugeValue.style.opacity = isLoading ? '0.5' : '1';
+            }
+            setRefreshButtonState();
+        }
+
+        function updateLastUpdated(timestamp) {
+            const target = document.getElementById('lastUpdated');
+            if (!target) return;
+            if (!timestamp) {
+                target.textContent = '--';
+                return;
+            }
+            const date = new Date(timestamp);
+            if (!Number.isFinite(date.getTime())) {
+                target.textContent = '--';
+                return;
+            }
+            target.textContent = date.toLocaleTimeString();
+        }
+
+        function generateTrendData() {
+            return historicalData.map(point => point.level);
+        }
+
+        function renderSignals() {
+            const grid = document.getElementById('signalsGrid');
+            if (!grid) return;
+
+            grid.innerHTML = SIGNALS.map(signal => {
+                const sourceData = dataSources[signal.source];
+                const displayValue = sourceData && sourceData.success && sourceData.value !== null
+                    ? formatSignalValue(signal.id, sourceData.raw)
+                    : '--';
+
+                return `
+                    <div class="signal-card">
+                        <div class="signal-info" title="${escapeHtml(signal.description)}">i</div>
+                        <div class="signal-header">
+                            <span class="signal-icon">${signal.icon}</span>
+                            <span class="signal-title">${escapeHtml(signal.title)}</span>
+                            <div class="signal-status ${signal.status}"></div>
+                        </div>
+                        <div class="signal-value">${displayValue}</div>
+                        <div class="signal-description">${escapeHtml(signal.description)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatSignalValue(signalId, raw) {
+            if (!raw) return '--';
+
+            switch (signalId) {
+                case 'research':
+                    return formatNumber(raw.recentWeek || 0);
+                case 'compute':
+                    return formatNumber(raw.totalModels || 0);
+                case 'autonomy':
+                case 'news':
+                case 'regulation':
+                case 'incidents':
+                    return formatNumber(raw.articleCount || 0);
+                case 'funding':
+                    return formatNumber(raw.totalScore || 0);
+                case 'capabilities':
+                    return formatNumber(raw.recent || 0);
+                default:
+                    return '--';
+            }
+        }
+
+        function updateGauge() {
+            const gaugeValue = document.getElementById('gaugeValue');
+            const gaugeRing = document.getElementById('gaugeRing');
+            const threatLabel = document.getElementById('threatLabel');
+            const totalSources = Object.keys(dataSources).length;
+            const validSources = Object.values(dataSources).filter(source => source.success).length;
+
+            if (!gaugeValue || !gaugeRing || !threatLabel) return;
+
+            if (validSources === 0) {
+                gaugeValue.textContent = '--';
+                gaugeValue.style.color = 'var(--text-muted)';
+                gaugeRing.style.setProperty('--threat-level', 0);
+                threatLabel.className = 'threat-label threat-low';
+                threatLabel.textContent = 'Awaiting Data...';
+
+                document.getElementById('watchers').textContent = `0/${totalSources}`;
+                document.getElementById('dataPoints').textContent = '0';
+                document.getElementById('confidence').textContent = '0%';
+
+                const statusEl = document.getElementById('sourceStatus');
+                statusEl.textContent = '●';
+                statusEl.style.color = 'var(--text-muted)';
+                return;
+            }
+
+            const displayLevel = Math.max(CONFIG.minThreatLevel, Math.min(CONFIG.maxThreatLevel, currentThreatLevel));
+            gaugeValue.textContent = Math.round(displayLevel);
+            gaugeRing.style.setProperty('--threat-level', displayLevel);
+
+            let threatClass = 'threat-low';
+            let threatText = 'Stable Employment';
+            let textColor = 'var(--accent-green)';
+
+            if (displayLevel >= 85) {
+                threatClass = 'threat-critical';
+                threatText = 'JOB MARKET CRASH';
+                textColor = 'var(--accent-red)';
+            } else if (displayLevel >= 60) {
+                threatClass = 'threat-high';
+                threatText = 'Mass Displacement';
+                textColor = 'var(--accent-orange)';
+            } else if (displayLevel >= 30) {
+                threatClass = 'threat-elevated';
+                threatText = 'Market Stress';
+                textColor = 'var(--accent-yellow)';
+            }
+
+            gaugeValue.style.color = textColor;
+            threatLabel.className = `threat-label ${threatClass}`;
+            threatLabel.textContent = threatText;
+
+            const totalDataPoints = Object.values(dataSources).reduce((sum, source) => sum + estimateDataPoints(source), 0);
+            document.getElementById('watchers').textContent = `${validSources}/${totalSources}`;
+            document.getElementById('dataPoints').textContent = formatNumber(totalDataPoints);
+            document.getElementById('confidence').textContent = `${Math.floor((validSources / totalSources) * 100)}%`;
+
+            const statusEl = document.getElementById('sourceStatus');
+            statusEl.textContent = '●';
+            statusEl.style.color = validSources === totalSources ? 'var(--accent-green)' : 'var(--accent-yellow)';
+        }
+
+        function renderCharts() {
+            renderProjectionChart();
+            renderTrendChart();
+        }
+
+        function renderProjectionChart() {
+            const canvas = document.getElementById('projectionChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = Math.max(1, Math.floor(rect.width - 40));
+            canvas.height = Math.max(1, Math.floor(rect.height - 40));
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const y = (canvas.height / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            const data = [];
+            let slope = 0;
+            if (historicalData.length >= 2) {
+                const recent = historicalData.slice(-Math.min(historicalData.length, 6));
+                slope = (recent[recent.length - 1].level - recent[0].level) / recent.length;
+            }
+
+            let value = Number.isFinite(currentThreatLevel) ? currentThreatLevel : CONFIG.baseThreatLevel;
+            for (let i = 0; i < 24; i++) {
+                value += slope * 0.5;
+                value = Math.max(CONFIG.minThreatLevel, Math.min(CONFIG.maxThreatLevel, value));
+                data.push(value);
+            }
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
+
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            data.forEach((point, index) => {
+                const x = (canvas.width / (data.length - 1)) * index;
+                const y = canvas.height - (point / 100) * canvas.height;
+                ctx.lineTo(x, y);
+            });
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            ctx.beginPath();
+            data.forEach((point, index) => {
+                const x = (canvas.width / (data.length - 1)) * index;
+                const y = canvas.height - (point / 100) * canvas.height;
+                if (index === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.strokeStyle = getCssVar('--accent-cyan', '#00d4ff');
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.font = '10px JetBrains Mono';
+            ctx.fillText('Next 24 Hours (Job Market Projection)', 10, 15);
+        }
+
+        function renderTrendChart() {
+            const canvas = document.getElementById('trendChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = Math.max(1, Math.floor(rect.width - 40));
+            canvas.height = Math.max(1, Math.floor(rect.height - 40));
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const y = (canvas.height / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            const data = generateTrendData();
+
+            if (data.length === 0) {
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.font = '13px JetBrains Mono';
+                ctx.textAlign = 'center';
+                ctx.fillText('Collecting data - trend will appear after multiple refreshes', canvas.width / 2, canvas.height / 2);
+                ctx.textAlign = 'start';
+                return;
+            }
+
+            if (data.length === 1) {
+                const pointY = canvas.height - (data[0] / 100) * canvas.height;
+                const pointX = canvas.width / 2;
+                ctx.beginPath();
+                ctx.arc(pointX, pointY, 4, 0, Math.PI * 2);
+                ctx.fillStyle = getCssVar('--accent-red', '#ff3366');
+                ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.font = '10px JetBrains Mono';
+                ctx.fillText('1 data point collected', 10, 15);
+                return;
+            }
+
+            const denominator = Math.max(1, data.length - 1);
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, 'rgba(255, 51, 102, 0.3)');
+            gradient.addColorStop(1, 'rgba(255, 51, 102, 0)');
+
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            data.forEach((point, index) => {
+                const x = (canvas.width / denominator) * index;
+                const y = canvas.height - (point / 100) * canvas.height;
+                ctx.lineTo(x, y);
+            });
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            ctx.beginPath();
+            data.forEach((point, index) => {
+                const x = (canvas.width / denominator) * index;
+                const y = canvas.height - (point / 100) * canvas.height;
+                if (index === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.strokeStyle = getCssVar('--accent-red', '#ff3366');
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.font = '10px JetBrains Mono';
+            ctx.fillText('Employment Disruption Trend', 10, 15);
+            const successCount = Object.values(dataSources).filter(source => source.success).length;
+            ctx.fillText(`Data: ${successCount}/${SOURCES.length} sources`, Math.max(10, canvas.width - 130), canvas.height - 5);
+        }
+
+        function getSourceStatus(sourceState) {
+            if (!sourceState.lastUpdated && !sourceState.error) {
+                return { text: 'Pending', className: 'state-pending' };
+            }
+            if (sourceState.success) {
+                return { text: 'Online', className: 'state-ok' };
+            }
+            return { text: 'Error', className: 'state-fail' };
+        }
+
+        function formatSourceDetails(sourceKey, sourceState) {
+            if (!sourceState.success) {
+                return sourceState.error || 'No response';
+            }
+            const raw = sourceState.raw || {};
+            switch (sourceKey) {
+                case 'arxiv':
+                    return `${formatNumber(raw.recentWeek || 0)} papers in last 7 days`;
+                case 'gdelt':
+                    return `${formatNumber(raw.articleCount || 0)} matching news articles`;
+                case 'openrouter':
+                    return `${formatNumber(raw.recent || 0)} recent models (${formatNumber(raw.totalModels || 0)} total)`;
+                case 'github':
+                    return `${formatNumber(raw.repos || 0)} repos / ${formatNumber(raw.stars || 0)} stars`;
+                case 'wikipedia':
+                    return `${formatNumber(raw.aiChanges || 0)} AI-related page edits`;
+                case 'hackernews':
+                    return `${formatNumber(raw.aiPosts || 0)} posts / score ${formatNumber(raw.totalScore || 0)}`;
+                default:
+                    return 'OK';
+            }
+        }
+
+        function renderSourceHealth() {
+            const tableBody = document.getElementById('sourcesTableBody');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = SOURCES.map(source => {
+                const state = dataSources[source.key] || createEmptySourceState();
+                const status = getSourceStatus(state);
+                const latency = Number.isFinite(state.latencyMs) ? `${state.latencyMs} ms` : '--';
+                const lastSync = formatRelativeTime(state.lastUpdated);
+                const details = formatSourceDetails(source.key, state);
+                const detailClass = state.success ? 'source-detail' : 'source-error';
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(source.label)}</td>
+                        <td><span class="source-state ${status.className}">${escapeHtml(status.text)}</span></td>
+                        <td class="mono-cell">${escapeHtml(latency)}</td>
+                        <td class="mono-cell">${escapeHtml(lastSync)}</td>
+                        <td class="${detailClass}">${escapeHtml(details)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ============================================
+        // INTERVALS AND CONTROLS
+        // ============================================
+
+        function scheduleDataRefresh(intervalMs) {
+            if (dataRefreshTimer) {
+                clearInterval(dataRefreshTimer);
+            }
+
+            CONFIG.updateInterval = intervalMs;
+            nextRefreshAt = Date.now() + CONFIG.updateInterval;
+            dataRefreshTimer = setInterval(fetchAllData, CONFIG.updateInterval);
+            updateNextRefreshLabel();
+            saveAppState();
+        }
+
+        function startAutoRefresh() {
+            if (uiRefreshTimer) {
+                clearInterval(uiRefreshTimer);
+            }
+
+            uiRefreshTimer = setInterval(() => {
+                updateNextRefreshLabel();
+                renderSourceHealth();
+            }, CONFIG.refreshInterval);
+        }
+
+        function bindControls() {
+            const refreshButton = document.getElementById('refreshNowBtn');
+            const cadenceSelect = document.getElementById('refreshCadence');
+
+            if (refreshButton) {
+                refreshButton.addEventListener('click', fetchAllData);
+            }
+
+            if (cadenceSelect) {
+                cadenceSelect.value = String(CONFIG.updateInterval);
+                cadenceSelect.addEventListener('change', () => {
+                    const selectedInterval = Number(cadenceSelect.value);
+                    if (!ALLOWED_INTERVALS.includes(selectedInterval)) return;
+                    scheduleDataRefresh(selectedInterval);
+                });
+            }
+        }
+
+        function setupSuggestionForm() {
+            const form = document.getElementById('suggestionForm');
+            if (!form) return;
+
+            form.addEventListener('submit', event => {
+                event.preventDefault();
+
+                const emailInput = document.getElementById('suggestionEmail');
+                const suggestionInput = document.getElementById('suggestionText');
+                const status = document.getElementById('suggestionStatus');
+                const suggestionText = suggestionInput ? suggestionInput.value.trim() : '';
+                const emailText = emailInput ? emailInput.value.trim() : '';
+
+                if (!suggestionText) {
+                    if (status) {
+                        status.textContent = 'Please add a signal suggestion before submitting.';
+                        status.style.color = 'var(--accent-yellow)';
+                    }
+                    return;
+                }
+
+                const payload = {
+                    submittedAt: new Date().toISOString(),
+                    email: emailText || null,
+                    suggestion: suggestionText
+                };
+
+                try {
+                    const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.suggestions) || '[]');
+                    const suggestions = Array.isArray(existing) ? existing : [];
+                    suggestions.unshift(payload);
+                    localStorage.setItem(STORAGE_KEYS.suggestions, JSON.stringify(suggestions.slice(0, 100)));
+
+                    if (status) {
+                        status.textContent = 'Suggestion saved locally. Thanks for improving the radar model.';
+                        status.style.color = 'var(--accent-green)';
+                    }
+                } catch (error) {
+                    console.warn('Suggestion persistence failed:', error.message);
+                    if (status) {
+                        status.textContent = 'Suggestion captured for this session.';
+                        status.style.color = 'var(--accent-yellow)';
+                    }
+                }
+
+                form.reset();
+            });
+        }
+
+        // Cookie handling
+        function checkCookies() {
+            if (localStorage.getItem('cookiesAccepted')) {
+                document.getElementById('cookieBanner').classList.add('hidden');
+            }
+        }
+
+        function acceptCookies() {
+            localStorage.setItem('cookiesAccepted', 'true');
+            document.getElementById('cookieBanner').classList.add('hidden');
+        }
+
+        function rejectCookies() {
+            document.getElementById('cookieBanner').classList.add('hidden');
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        function init() {
+            checkCookies();
+            const hydrated = loadAppState();
+            if (!hydrated) {
+                preloadInitialData();
+            }
+
+            bindControls();
+            setupSuggestionForm();
+            renderSignals();
+            renderCharts();
+            renderSourceHealth();
+            updateGauge();
+            updateLoadingState();
+            updateLastUpdated(lastDataTimestamp);
+
+            scheduleDataRefresh(CONFIG.updateInterval);
+            startAutoRefresh();
+            fetchAllData();
+        }
+
+        window.addEventListener('resize', renderCharts);
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
