@@ -35,38 +35,16 @@
 
         body {
             font-family: 'JetBrains Mono', monospace;
-            background:
-                radial-gradient(circle at 15% -10%, rgba(0, 212, 255, 0.12), transparent 32%),
-                radial-gradient(circle at 90% 0%, rgba(255, 51, 102, 0.12), transparent 28%),
-                linear-gradient(180deg, #0a0e14 0%, #090d13 100%);
+            background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.6;
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 44px 44px;
-            mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9) 45%, transparent 100%);
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.25;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
-        }
-
-        main.container {
-            padding-top: 20px;
         }
 
         /* Header */
@@ -153,7 +131,7 @@
 
         /* Donation Banner */
         .donation-banner {
-            background: linear-gradient(90deg, rgba(0, 212, 255, 0.12), rgba(0, 255, 136, 0.08));
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.1), rgba(0, 255, 136, 0.1));
             border: 1px solid var(--border-color);
             padding: 12px 20px;
             margin: 20px 0;
@@ -186,7 +164,6 @@
             border-radius: 12px;
             padding: 14px 16px;
             margin-bottom: 20px;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
         }
 
         .control-row {
@@ -378,59 +355,6 @@
             animation: critical-pulse 1s ease-in-out infinite;
         }
 
-        .insights-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .insight-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 16px;
-            min-height: 132px;
-        }
-
-        .insight-card h3 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 14px;
-            letter-spacing: 0.2px;
-            margin-bottom: 8px;
-        }
-
-        .insight-primary {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--accent-cyan);
-            line-height: 1.3;
-            margin-bottom: 8px;
-        }
-
-        .insight-secondary {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.45;
-        }
-
-        .insight-meter {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 999px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .insight-meter span {
-            display: block;
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent-green), var(--accent-yellow), var(--accent-red));
-            transition: width 0.5s ease;
-        }
-
         @keyframes critical-pulse {
             0%, 100% { box-shadow: 0 0 20px rgba(255, 51, 102, 0.3); }
             50% { box-shadow: 0 0 40px rgba(255, 51, 102, 0.6); }
@@ -549,9 +473,6 @@
 
         .sources-table thead {
             background: rgba(255, 255, 255, 0.02);
-            position: sticky;
-            top: 0;
-            z-index: 1;
         }
 
         .sources-table th,
@@ -564,10 +485,6 @@
 
         .sources-table tbody tr:last-child td {
             border-bottom: none;
-        }
-
-        .sources-table tbody tr:nth-child(even) {
-            background: rgba(255, 255, 255, 0.01);
         }
 
         .source-state {
@@ -703,9 +620,6 @@
 
         .compiler-table thead {
             background: rgba(255, 255, 255, 0.02);
-            position: sticky;
-            top: 0;
-            z-index: 1;
         }
 
         .compiler-table th,
@@ -718,10 +632,6 @@
 
         .compiler-table tbody tr:last-child td {
             border-bottom: none;
-        }
-
-        .compiler-table tbody tr:nth-child(even) {
-            background: rgba(255, 255, 255, 0.01);
         }
 
         .compiler-status {
@@ -765,12 +675,6 @@
             color: var(--text-secondary);
             line-height: 1.45;
             min-width: 220px;
-        }
-
-        /* Performance: defer heavy section rendering until near viewport */
-        .perf-lazy {
-            content-visibility: auto;
-            contain-intrinsic-size: 900px;
         }
 
         /* Signal Cards */
@@ -997,17 +901,6 @@
             transform: translateY(-2px);
         }
 
-        .control-btn:focus-visible,
-        .control-select:focus-visible,
-        .suggestion-form input:focus-visible,
-        .suggestion-form button:focus-visible,
-        .cookie-buttons button:focus-visible,
-        .footer-links a:focus-visible,
-        .donation-banner a:focus-visible {
-            outline: 2px solid var(--accent-cyan);
-            outline-offset: 2px;
-        }
-
         .suggestion-status {
             margin-top: 12px;
             font-size: 12px;
@@ -1160,8 +1053,8 @@
 
     <main class="container">
         <div class="donation-banner">
-            <p>📉 Composite score uses source-weighted signals with reliability and freshness adjustments per metric.</p>
-            <a href="#scoreCompiler">Inspect score logic →</a>
+            <p>📉 This is a simulation for educational purposes. Tracking AI's impact on employment markets.</p>
+            <a href="#">Support the Project →</a>
         </div>
 
         <section class="control-section">
@@ -1190,25 +1083,6 @@
                 </div>
             </div>
             <div class="threat-label threat-low" id="threatLabel">Calculating...</div>
-        </section>
-
-        <section class="insights-section">
-            <article class="insight-card">
-                <h3>Risk Regime</h3>
-                <p class="insight-primary" id="insightRiskRegime">Awaiting source data</p>
-                <p class="insight-secondary" id="insightRiskContext">Current composite level and crisis band.</p>
-                <div class="insight-meter"><span id="insightRiskMeter"></span></div>
-            </article>
-            <article class="insight-card">
-                <h3>Top Weighted Driver</h3>
-                <p class="insight-primary" id="insightTopSignal">--</p>
-                <p class="insight-secondary" id="insightTopSignalNote">Waiting for normalized signal contributions.</p>
-            </article>
-            <article class="insight-card">
-                <h3>Source Mix</h3>
-                <p class="insight-primary" id="insightSourceMix">--</p>
-                <p class="insight-secondary" id="insightSourceMixNote">Quality-adjusted weight distribution by source.</p>
-            </article>
         </section>
 
         <section class="projection-section">
@@ -1245,7 +1119,7 @@
             </div>
         </section>
 
-        <section class="sources-section perf-lazy">
+        <section class="sources-section">
             <h2>🛰️ Source Health</h2>
             <div class="sources-table-wrap">
                 <table class="sources-table">
@@ -1264,7 +1138,7 @@
             </div>
         </section>
 
-        <section class="compiler-section perf-lazy" id="scoreCompiler">
+        <section class="compiler-section">
             <h2>🧮 Score Compiler (Weight Sanity Check)</h2>
             <p class="compiler-subtitle">Inspired by calm, transparent dashboards like TranquilityTracker: every signal shows its weight, normalized impact, and why it exists in the model.</p>
             <div class="compiler-formula" id="compilerFormula">Final Score = clamp((Σ(normalized × weight × sourceReliability × freshness) / Σ(weight × sourceReliability × freshness)) × escalation multiplier, 5, 100)</div>
@@ -1307,14 +1181,14 @@
             </div>
         </section>
 
-        <section class="signals-section perf-lazy">
+        <section class="signals-section">
             <h2>🔔 Job Market Disruption Signals</h2>
             <div class="signals-grid" id="signalsGrid">
                 <!-- Signal cards will be injected by JS -->
             </div>
         </section>
 
-        <section class="methodology-section perf-lazy" id="methodology">
+        <section class="methodology-section">
             <h2>📋 Methodology</h2>
             <div class="methodology-content">
                 <p>The Job Market Crash Index is calculated using a composite algorithm that analyzes multiple real-time signals related to AI-driven workforce displacement, automation proliferation, hiring trends, and economic disruption indicators.</p>
@@ -1339,7 +1213,7 @@
             </div>
         </section>
 
-        <section class="suggestion-section perf-lazy">
+        <section class="suggestion-section">
             <h2>💡 Suggest New Employment Signals</h2>
             <form class="suggestion-form" id="suggestionForm">
                 <input type="email" id="suggestionEmail" name="email" placeholder="Enter your email (optional)">
@@ -1354,9 +1228,10 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-links">
-                    <a href="#methodology">Methodology</a>
-                    <a href="#scoreCompiler">Score Logic</a>
-                    <a href="#suggestionText">Suggest Signal</a>
+                    <a href="#">About</a>
+                    <a href="#">Methodology</a>
+                    <a href="#">Share</a>
+                    <a href="#">Contact</a>
                 </div>
                 <div class="footer-disclaimer">
                     This is a simulation/educational project. Not financial or career advice. Data sources are real but the index is generated for demonstration purposes.
@@ -1366,7 +1241,7 @@
     </footer>
 
     <div class="cookie-banner" id="cookieBanner">
-        <p>This app stores your refresh settings and local history in your browser only.</p>
+        <p>We use cookies to track your employment anxiety. Just kidding, we don't actually track anything. But here we are.</p>
         <div class="cookie-buttons">
             <button class="cookie-reject" onclick="rejectCookies()">Reject</button>
             <button class="cookie-accept" onclick="acceptCookies()">Accept</button>
@@ -1397,10 +1272,6 @@
 
         const MAX_HISTORY = 72;
         const ALLOWED_INTERVALS = [60000, 300000, 900000];
-        const DD_MM_YYYY_REGEX = /^(\d{2})-(\d{2})-(\d{4})$/;
-        const EMPLOYEE_RANGE_REGEX = /(\d+)\s*-\s*(\d+)/;
-        const EMPLOYEE_NUMBER_REGEX = /(\d+)/;
-        const LAYOFF_PAYLOAD_REGEX = /\\"data\\":\[(.*?)\]\}\],\\\"\$L[0-9A-Za-z]+\\\"/s;
 
         const SOURCES = [
             { key: 'arxiv', label: 'arXiv', fetcher: fetchArxivPapers },
@@ -1421,7 +1292,6 @@
             wikipedia: { reliability: 0.72, url: 'https://www.wikipedia.org' },
             hackernews: { reliability: 0.65, url: 'https://news.ycombinator.com/' }
         };
-        const SOURCE_BY_KEY = new Map(SOURCES.map(source => [source.key, source]));
 
         function createEmptySourceState() {
             return {
@@ -1440,7 +1310,6 @@
         }, {});
 
         let historicalData = [];
-        const storageWriteCache = new Map();
 
         // Signal definitions with data source mappings
         const SIGNALS = [
@@ -1555,7 +1424,6 @@
         let nextRefreshAt = null;
         let lastDataTimestamp = null;
         let scoreBreakdown = null;
-        let chartResizeRafId = null;
 
         function getCssVar(name, fallback) {
             const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -1585,7 +1453,7 @@
 
         function parseDdMmYyyyToTimestamp(input) {
             if (typeof input !== 'string') return null;
-            const match = input.trim().match(DD_MM_YYYY_REGEX);
+            const match = input.trim().match(/^(\d{2})-(\d{2})-(\d{4})$/);
             if (!match) return null;
             const day = Number(match[1]);
             const month = Number(match[2]);
@@ -1603,7 +1471,7 @@
                 return null;
             }
 
-            const rangeMatch = normalized.match(EMPLOYEE_RANGE_REGEX);
+            const rangeMatch = normalized.match(/(\d+)\s*-\s*(\d+)/);
             if (rangeMatch) {
                 const low = Number(rangeMatch[1]);
                 const high = Number(rangeMatch[2]);
@@ -1612,7 +1480,7 @@
                 }
             }
 
-            const numberMatch = normalized.match(EMPLOYEE_NUMBER_REGEX);
+            const numberMatch = normalized.match(/(\d+)/);
             if (!numberMatch) return null;
             const parsed = Number(numberMatch[1]);
             return Number.isFinite(parsed) ? parsed : null;
@@ -1729,76 +1597,31 @@
             };
         }
 
-        function setLocalStorageJson(key, value) {
-            const serialized = JSON.stringify(value);
-            if (storageWriteCache.get(key) === serialized) return;
-            localStorage.setItem(key, serialized);
-            storageWriteCache.set(key, serialized);
-        }
-
-        function sanitizeRawForStorage(sourceKey, raw) {
-            if (!raw || typeof raw !== 'object') return null;
-
-            switch (sourceKey) {
-                case 'arxiv':
-                    return { recentWeek: raw.recentWeek, total: raw.total };
-                case 'ailayoffs':
-                    return {
-                        totalEvents: raw.totalEvents,
-                        totalJobLosses: raw.totalJobLosses,
-                        recent180dEvents: raw.recent180dEvents,
-                        recent180dLosses: raw.recent180dLosses,
-                        uniqueSourceDomains: raw.uniqueSourceDomains,
-                        latestEventDate: raw.latestEventDate,
-                        latestEventTimestamp: raw.latestEventTimestamp
-                    };
-                case 'gdelt':
-                    return { articleCount: raw.articleCount };
-                case 'openrouter':
-                    return { totalModels: raw.totalModels, recent: raw.recent, advanced: raw.advanced };
-                case 'github':
-                    return { repos: raw.repos, stars: raw.stars };
-                case 'wikipedia':
-                    return { totalChanges: raw.totalChanges, aiChanges: raw.aiChanges };
-                case 'hackernews':
-                    return { aiPosts: raw.aiPosts, totalScore: raw.totalScore };
-                default:
-                    return raw;
-            }
-        }
-
-        function sanitizeDataSourcesForStorage() {
-            return SOURCES.reduce((acc, source) => {
-                const current = dataSources[source.key] || createEmptySourceState();
-                acc[source.key] = {
-                    value: Number.isFinite(current.value) ? current.value : null,
-                    success: Boolean(current.success),
-                    error: current.error || null,
-                    lastUpdated: current.lastUpdated || null,
-                    latencyMs: Number.isFinite(current.latencyMs) ? current.latencyMs : null,
-                    raw: sanitizeRawForStorage(source.key, current.raw)
-                };
-                return acc;
-            }, {});
-        }
-
         function saveAppState() {
             try {
-                setLocalStorageJson(
+                localStorage.setItem(
                     STORAGE_KEYS.history,
-                    historicalData.slice(-MAX_HISTORY).map(point => ({
-                        timestamp: point.timestamp,
-                        level: point.level
-                    }))
+                    JSON.stringify(
+                        historicalData.slice(-MAX_HISTORY).map(point => ({
+                            timestamp: point.timestamp,
+                            level: point.level
+                        }))
+                    )
                 );
-                setLocalStorageJson(STORAGE_KEYS.snapshot, {
-                    currentThreatLevel,
-                    dataSources: sanitizeDataSourcesForStorage(),
-                    lastDataTimestamp
-                });
-                setLocalStorageJson(STORAGE_KEYS.settings, {
-                    updateInterval: CONFIG.updateInterval
-                });
+                localStorage.setItem(
+                    STORAGE_KEYS.snapshot,
+                    JSON.stringify({
+                        currentThreatLevel,
+                        dataSources,
+                        lastDataTimestamp
+                    })
+                );
+                localStorage.setItem(
+                    STORAGE_KEYS.settings,
+                    JSON.stringify({
+                        updateInterval: CONFIG.updateInterval
+                    })
+                );
             } catch (error) {
                 console.warn('Saving state failed:', error.message);
             }
@@ -1919,7 +1742,7 @@
                 if (!response.ok) throw new Error('AI Layoff Tracker fetch failed');
 
                 const html = await response.text();
-                const payloadMatch = html.match(LAYOFF_PAYLOAD_REGEX);
+                const payloadMatch = html.match(/\\\"data\\\":\[(.*?)\]\}\],\\\"\$L[0-9A-Za-z]+\\\"/s);
                 if (!payloadMatch) {
                     throw new Error('AI Layoff Tracker payload not found');
                 }
@@ -1995,18 +1818,16 @@
         async function fetchGDELT() {
             try {
                 const queries = ['AI layoffs', 'AI job displacement', 'workforce automation', 'hiring freeze AI'];
-                const selectedQueries = queries.slice(0, 2);
-                const articleCounts = await Promise.all(
-                    selectedQueries.map(async query => {
-                        const url = `https://api.gdeltproject.org/api/v2/article/article?format=json&query=${encodeURIComponent(query)}&mode=artlist&maxrecords=50&sort=DateDesc`;
-                        const proxiedUrl = CONFIG.corsProxy + encodeURIComponent(url);
-                        const response = await fetchWithTimeout(proxiedUrl);
-                        if (!response.ok) return 0;
-                        const data = await response.json();
-                        return data.articles?.length || 0;
-                    })
-                );
-                const totalArticles = articleCounts.reduce((sum, count) => sum + count, 0);
+                let totalArticles = 0;
+
+                for (const query of queries.slice(0, 2)) {
+                    const url = `https://api.gdeltproject.org/api/v2/article/article?format=json&query=${encodeURIComponent(query)}&mode=artlist&maxrecords=50&sort=DateDesc`;
+                    const proxiedUrl = CONFIG.corsProxy + encodeURIComponent(url);
+                    const response = await fetchWithTimeout(proxiedUrl);
+                    if (!response.ok) continue;
+                    const data = await response.json();
+                    totalArticles += data.articles?.length || 0;
+                }
 
                 return {
                     value: Math.min(100, Math.floor(totalArticles / 2)),
@@ -2062,24 +1883,23 @@
                     `topic:machine-learning created:>${sinceDate}`
                 ];
 
-                const queryResults = await Promise.all(
-                    queries.map(async query => {
-                        const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=10`;
-                        const response = await fetchWithTimeout(url, {
-                            headers: { 'Accept': 'application/vnd.github.v3+json' }
-                        });
-                        if (!response.ok) return [];
-                        const data = await response.json();
-                        return Array.isArray(data.items) ? data.items : [];
-                    })
-                );
-
                 let totalStars = 0;
                 let repoCount = 0;
-                queryResults.flat().forEach(repo => {
-                    totalStars += Number(repo.stargazers_count) || 0;
-                    repoCount += 1;
-                });
+
+                for (const query of queries) {
+                    const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=10`;
+                    const response = await fetchWithTimeout(url, {
+                        headers: { 'Accept': 'application/vnd.github.v3+json' }
+                    });
+                    if (!response.ok) continue;
+                    const data = await response.json();
+                    if (!Array.isArray(data.items)) continue;
+
+                    data.items.forEach(repo => {
+                        totalStars += Number(repo.stargazers_count) || 0;
+                        repoCount += 1;
+                    });
+                }
 
                 return {
                     value: Math.min(100, Math.floor(totalStars / 500)),
@@ -2730,75 +2550,6 @@
             }
         }
 
-        function getRiskRegime(level) {
-            if (level >= 85) return { label: 'Crash Imminent', context: 'Critical displacement pressure across multiple indicators.' };
-            if (level >= 60) return { label: 'Severe Stress', context: 'Sustained labor disruption with high escalation risk.' };
-            if (level >= 30) return { label: 'Elevated Risk', context: 'Disruption signals are clustering above baseline.' };
-            return { label: 'Stable / Watch', context: 'Signals are active but not yet in a broad crisis regime.' };
-        }
-
-        function updateModelInsights() {
-            const riskRegimeEl = document.getElementById('insightRiskRegime');
-            const riskContextEl = document.getElementById('insightRiskContext');
-            const riskMeterEl = document.getElementById('insightRiskMeter');
-            const topSignalEl = document.getElementById('insightTopSignal');
-            const topSignalNoteEl = document.getElementById('insightTopSignalNote');
-            const sourceMixEl = document.getElementById('insightSourceMix');
-            const sourceMixNoteEl = document.getElementById('insightSourceMixNote');
-
-            if (!riskRegimeEl || !riskContextEl || !riskMeterEl || !topSignalEl || !topSignalNoteEl || !sourceMixEl || !sourceMixNoteEl) {
-                return;
-            }
-
-            if (!scoreBreakdown) {
-                riskRegimeEl.textContent = 'Awaiting source data';
-                riskContextEl.textContent = 'Current composite level and crisis band.';
-                riskMeterEl.style.width = '0%';
-                topSignalEl.textContent = '--';
-                topSignalNoteEl.textContent = 'Waiting for normalized signal contributions.';
-                sourceMixEl.textContent = '--';
-                sourceMixNoteEl.textContent = 'Quality-adjusted weight distribution by source.';
-                return;
-            }
-
-            const level = Math.max(CONFIG.minThreatLevel, Math.min(CONFIG.maxThreatLevel, currentThreatLevel));
-            const regime = getRiskRegime(level);
-            riskRegimeEl.textContent = `${regime.label} (${Math.round(level)})`;
-            riskContextEl.textContent = regime.context;
-            riskMeterEl.style.width = `${Math.round(level)}%`;
-
-            const topRow = [...scoreBreakdown.rows]
-                .filter(row => Number.isFinite(row.effectiveWeightedValue))
-                .sort((a, b) => b.effectiveWeightedValue - a.effectiveWeightedValue)[0];
-
-            if (topRow && topRow.status !== 'missing') {
-                topSignalEl.textContent = topRow.title;
-                topSignalNoteEl.textContent =
-                    `Norm ${formatDecimal(topRow.normalizedValue, 1)} x ` +
-                    `${formatPercent(topRow.weight, 1)} weight x ${formatPercent(topRow.reliabilityFactor, 0)} rel x ${formatPercent(topRow.freshnessFactor, 0)} fresh`;
-            } else {
-                topSignalEl.textContent = 'No active signal';
-                topSignalNoteEl.textContent = 'All inputs missing or below threshold.';
-            }
-
-            const topSources = Object.entries(scoreBreakdown.sourceWeightMap)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 3)
-                .map(([sourceKey, weight]) => {
-                    const label = SOURCE_BY_KEY.get(sourceKey)?.label || sourceKey;
-                    return `${label} ${(weight * 100).toFixed(0)}%`;
-                });
-
-            if (topSources.length) {
-                const activeSources = Object.values(dataSources).filter(source => source.success).length;
-                sourceMixEl.textContent = topSources.join(' • ');
-                sourceMixNoteEl.textContent = `${activeSources}/${SOURCES.length} sources online in this cycle.`;
-            } else {
-                sourceMixEl.textContent = 'No source mix';
-                sourceMixNoteEl.textContent = 'No quality-adjusted source weights available yet.';
-            }
-        }
-
         function renderScoreCompiler() {
             const activeWeightEl = document.getElementById('compilerActiveWeight');
             const baseScoreEl = document.getElementById('compilerBaseScore');
@@ -2818,7 +2569,6 @@
                 finalScoreEl.textContent = '--';
                 notesEl.textContent = 'Waiting for enough source data to compile a weighted breakdown.';
                 tableBody.innerHTML = '';
-                updateModelInsights();
                 return;
             }
 
@@ -2830,7 +2580,7 @@
             const sourceWeightSummary = Object.entries(scoreBreakdown.sourceWeightMap)
                 .sort((a, b) => b[1] - a[1])
                 .map(([source, weight]) => {
-                    const label = SOURCE_BY_KEY.get(source)?.label || source;
+                    const label = SOURCES.find(entry => entry.key === source)?.label || source;
                     return `${label}: ${(weight * 100).toFixed(0)}%`;
                 })
                 .join(', ');
@@ -2866,8 +2616,6 @@
                     </tr>
                 `;
             }).join('');
-
-            updateModelInsights();
         }
 
         // ============================================
@@ -3007,17 +2755,7 @@
             fetchAllData();
         }
 
-        function handleWindowResize() {
-            if (chartResizeRafId !== null) {
-                return;
-            }
-            chartResizeRafId = window.requestAnimationFrame(() => {
-                chartResizeRafId = null;
-                renderCharts();
-            });
-        }
-
-        window.addEventListener('resize', handleWindowResize);
+        window.addEventListener('resize', renderCharts);
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
