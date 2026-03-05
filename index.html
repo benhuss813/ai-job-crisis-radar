@@ -1260,7 +1260,10 @@
             baseThreatLevel: 15,
             maxThreatLevel: 100,
             minThreatLevel: 5,
-            corsProxy: 'https://api.allorigins.win/raw?url='
+            corsProxies: [
+                { prefix: 'https://api.allorigins.win/raw?url=', encode: true },
+                { prefix: 'https://api.codetabs.com/v1/proxy?quest=', encode: false }
+            ]
         };
 
         const STORAGE_KEYS = {
@@ -1695,6 +1698,19 @@
             }
         }
 
+        async function fetchViaProxy(targetUrl, options = {}, timeoutMs = CONFIG.fetchTimeoutMs) {
+            for (const proxy of CONFIG.corsProxies) {
+                try {
+                    const proxyUrl = proxy.prefix + (proxy.encode ? encodeURIComponent(targetUrl) : targetUrl);
+                    const response = await fetchWithTimeout(proxyUrl, options, timeoutMs);
+                    if (response.ok) return response;
+                } catch {
+                    // try next proxy
+                }
+            }
+            throw new Error('All CORS proxies failed for ' + targetUrl);
+        }
+
         // ============================================
         // DATA FETCHING FUNCTIONS
         // ============================================
@@ -1703,9 +1719,8 @@
             try {
                 const categories = 'cat:cs.AI+OR+cat:cs.LG+OR+cat:cs.RO+OR+cat:cs.CV+OR+cat:cs.MA';
                 const url = `https://export.arxiv.org/api/query?search_query=${categories}&max_results=100&sortBy=submittedDate&sortOrder=descending`;
-                const proxiedUrl = CONFIG.corsProxy + encodeURIComponent(url);
 
-                const response = await fetchWithTimeout(proxiedUrl);
+                const response = await fetchViaProxy(url);
                 if (!response.ok) throw new Error('arXiv fetch failed');
 
                 const text = await response.text();
@@ -1737,8 +1752,7 @@
         async function fetchAILayoffTracker() {
             try {
                 const sourceUrl = 'https://www.ailayofftracker.com/';
-                const proxiedUrl = CONFIG.corsProxy + encodeURIComponent(sourceUrl);
-                const response = await fetchWithTimeout(proxiedUrl);
+                const response = await fetchViaProxy(sourceUrl);
                 if (!response.ok) throw new Error('AI Layoff Tracker fetch failed');
 
                 const html = await response.text();
@@ -1817,13 +1831,12 @@
 
         async function fetchGDELT() {
             try {
-                const queries = ['AI layoffs', 'AI job displacement', 'workforce automation', 'hiring freeze AI'];
+                const queries = ['"AI layoffs"', '"AI job displacement"', '"workforce automation"', '"hiring freeze AI"'];
                 let totalArticles = 0;
 
                 for (const query of queries.slice(0, 2)) {
-                    const url = `https://api.gdeltproject.org/api/v2/article/article?format=json&query=${encodeURIComponent(query)}&mode=artlist&maxrecords=50&sort=DateDesc`;
-                    const proxiedUrl = CONFIG.corsProxy + encodeURIComponent(url);
-                    const response = await fetchWithTimeout(proxiedUrl);
+                    const url = `https://api.gdeltproject.org/api/v2/doc/doc?format=json&query=${encodeURIComponent(query)}&mode=artlist&maxrecords=50&sort=DateDesc`;
+                    const response = await fetchWithTimeout(url);
                     if (!response.ok) continue;
                     const data = await response.json();
                     totalArticles += data.articles?.length || 0;
@@ -1842,8 +1855,7 @@
 
         async function fetchOpenRouter() {
             try {
-                const proxiedUrl = CONFIG.corsProxy + encodeURIComponent('https://openrouter.ai/api/v1/models');
-                const response = await fetchWithTimeout(proxiedUrl);
+                const response = await fetchWithTimeout('https://openrouter.ai/api/v1/models');
                 if (!response.ok) throw new Error('OpenRouter fetch failed');
 
                 const data = await response.json();
