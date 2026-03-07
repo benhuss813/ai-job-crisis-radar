@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Job Crisis Radar | Real-Time Employment Disruption Monitor</title>
+    <meta name="description" content="Real-time dashboard tracking AI-driven employment disruption across 7 live data sources. Monitors layoffs, automation research, AI tool proliferation, and workforce displacement signals.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,9 +23,6 @@
             --text-secondary: #8b949e;
             --text-muted: #484f58;
             --border-color: #21262d;
-            --glow-green: 0 0 20px rgba(0, 255, 136, 0.3);
-            --glow-red: 0 0 20px rgba(255, 51, 102, 0.3);
-            --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.3);
         }
 
         * {
@@ -49,13 +47,14 @@
 
         /* Header */
         header {
-            background: var(--bg-secondary);
+            background: rgba(18, 24, 31, 0.85);
             border-bottom: 1px solid var(--border-color);
             padding: 16px 0;
             position: sticky;
             top: 0;
             z-index: 100;
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
 
         .header-content {
@@ -747,6 +746,12 @@
             box-shadow: 0 0 10px var(--accent-green);
         }
 
+        .signal-status.missing {
+            background: var(--text-muted);
+            box-shadow: none;
+            animation: none;
+        }
+
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -1054,7 +1059,7 @@
     <main class="container">
         <div class="donation-banner">
             <p>📉 This is a simulation for educational purposes. Tracking AI's impact on employment markets.</p>
-            <a href="#">Support the Project →</a>
+            <a href="https://github.com/benhuss813/ai-job-crisis-radar" target="_blank" rel="noopener">View on GitHub →</a>
         </div>
 
         <section class="control-section">
@@ -1141,7 +1146,7 @@
         <section class="compiler-section">
             <h2>🧮 Score Compiler (Weight Sanity Check)</h2>
             <p class="compiler-subtitle">Inspired by calm, transparent dashboards like TranquilityTracker: every signal shows its weight, normalized impact, and why it exists in the model.</p>
-            <div class="compiler-formula" id="compilerFormula">Final Score = clamp((Σ(normalized × weight × sourceReliability × freshness) / Σ(weight × sourceReliability × freshness)) × escalation multiplier, 5, 100)</div>
+            <div class="compiler-formula">Final Score = clamp((Σ(normalized × weight × sourceReliability × freshness) / Σ(weight × sourceReliability × freshness)) × escalation multiplier, 5, 100)</div>
             <div class="compiler-stats">
                 <div class="compiler-stat">
                     <div class="compiler-stat-label">Effective Weight</div>
@@ -1188,7 +1193,7 @@
             </div>
         </section>
 
-        <section class="methodology-section">
+        <section class="methodology-section" id="methodology">
             <h2>📋 Methodology</h2>
             <div class="methodology-content">
                 <p>The Job Market Crash Index is calculated using a composite algorithm that analyzes multiple real-time signals related to AI-driven workforce displacement, automation proliferation, hiring trends, and economic disruption indicators.</p>
@@ -1213,12 +1218,11 @@
             </div>
         </section>
 
-        <section class="suggestion-section">
+        <section class="suggestion-section" id="contact">
             <h2>💡 Suggest New Employment Signals</h2>
             <form class="suggestion-form" id="suggestionForm">
-                <input type="email" id="suggestionEmail" name="email" placeholder="Enter your email (optional)">
                 <input type="text" id="suggestionText" name="signal" placeholder="Suggest a job market data source or signal..." required>
-                <button type="submit">Submit</button>
+                <button type="submit">Save Note</button>
             </form>
             <p class="suggestion-status" id="suggestionStatus" aria-live="polite"></p>
         </section>
@@ -1228,10 +1232,10 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-links">
-                    <a href="#">About</a>
-                    <a href="#">Methodology</a>
-                    <a href="#">Share</a>
-                    <a href="#">Contact</a>
+                    <a href="https://github.com/benhuss813/ai-job-crisis-radar" target="_blank" rel="noopener">About</a>
+                    <a href="#methodology">Methodology</a>
+                    <a href="#sourcesTableBody">Sources</a>
+                    <a href="#contact">Contact</a>
                 </div>
                 <div class="footer-disclaimer">
                     This is a simulation/educational project. Not financial or career advice. Data sources are real but the index is generated for demonstration purposes.
@@ -1421,7 +1425,6 @@
         // State
         let currentThreatLevel = CONFIG.baseThreatLevel;
         let isLoading = false;
-        let useFallback = false;
         let dataRefreshTimer = null;
         let uiRefreshTimer = null;
         let nextRefreshAt = null;
@@ -1470,8 +1473,11 @@
             if (typeof value !== 'string') return null;
 
             const normalized = value.replace(/,/g, '').trim();
-            if (!normalized || normalized.includes('%')) {
-                return null;
+            if (!normalized) return null;
+
+            const percentMatch = normalized.match(/^(\d+(?:\.\d+)?)\s*%$/);
+            if (percentMatch) {
+                return null; // Percentage without a base headcount cannot be converted
             }
 
             const rangeMatch = normalized.match(/(\d+)\s*-\s*(\d+)/);
@@ -1591,7 +1597,6 @@
             if (result && result.success && result.value !== null) {
                 return result;
             }
-            useFallback = true;
             return {
                 value: null,
                 raw: null,
@@ -1831,20 +1836,36 @@
 
         async function fetchGDELT() {
             try {
-                const queries = ['"AI layoffs"', '"AI job displacement"', '"workforce automation"', '"hiring freeze AI"'];
-                let totalArticles = 0;
+                const queryGroups = {
+                    news: ['"AI layoffs"', '"AI job displacement"'],
+                    regulation: ['"AI labor regulation"', '"AI workforce policy"'],
+                    incidents: ['"unemployment spike"', '"economic disruption AI"']
+                };
+                const results = { news: 0, regulation: 0, incidents: 0 };
 
-                for (const query of queries.slice(0, 2)) {
-                    const url = `https://api.gdeltproject.org/api/v2/doc/doc?format=json&query=${encodeURIComponent(query)}&mode=artlist&maxrecords=50&sort=DateDesc`;
-                    const response = await fetchWithTimeout(url);
-                    if (!response.ok) continue;
-                    const data = await response.json();
-                    totalArticles += data.articles?.length || 0;
+                for (const [group, queries] of Object.entries(queryGroups)) {
+                    for (const query of queries) {
+                        try {
+                            const url = `https://api.gdeltproject.org/api/v2/doc/doc?format=json&query=${encodeURIComponent(query)}&mode=artlist&maxrecords=50&sort=DateDesc`;
+                            const response = await fetchWithTimeout(url);
+                            if (!response.ok) continue;
+                            const data = await response.json();
+                            results[group] += data.articles?.length || 0;
+                        } catch {
+                            // continue to next query
+                        }
+                    }
                 }
 
+                const totalArticles = results.news + results.regulation + results.incidents;
                 return {
-                    value: Math.min(100, Math.floor(totalArticles / 2)),
-                    raw: { articleCount: totalArticles },
+                    value: Math.min(100, Math.floor(totalArticles / 3)),
+                    raw: {
+                        articleCount: totalArticles,
+                        newsArticles: results.news,
+                        regulationArticles: results.regulation,
+                        incidentArticles: results.incidents
+                    },
                     success: true
                 };
             } catch (error) {
@@ -2033,7 +2054,6 @@
         async function fetchAllData() {
             if (isLoading) return;
             isLoading = true;
-            useFallback = false;
             updateLoadingState();
             updateNextRefreshLabel();
 
@@ -2087,6 +2107,20 @@
             });
         }
 
+        function getSignalSourceValue(signalId, sourceData) {
+            const raw = sourceData.raw;
+            if (signalId === 'news' && raw && Number.isFinite(raw.newsArticles)) {
+                return Math.min(100, Math.floor(raw.newsArticles / 2));
+            }
+            if (signalId === 'regulation' && raw && Number.isFinite(raw.regulationArticles)) {
+                return Math.min(100, Math.floor(raw.regulationArticles / 2));
+            }
+            if (signalId === 'incidents' && raw && Number.isFinite(raw.incidentArticles)) {
+                return Math.min(100, Math.floor(raw.incidentArticles / 2));
+            }
+            return sourceData.value;
+        }
+
         function compileScoreBreakdown() {
             let activeWeight = 0;
             let effectiveWeight = 0;
@@ -2096,7 +2130,7 @@
             const rows = SIGNALS.map(signal => {
                 const sourceData = dataSources[signal.source];
                 const hasData = Boolean(sourceData && sourceData.success && sourceData.value !== null);
-                const sourceValue = hasData ? sourceData.value : null;
+                const sourceValue = hasData ? getSignalSourceValue(signal.id, sourceData) : null;
                 const normalizedValue = hasData ? normalizeValue(signal.id, sourceValue) : null;
                 const reliabilityFactor = getSourceReliabilityFactor(signal.source);
                 const freshnessFactor = getSourceFreshnessFactor(signal.source, sourceData);
@@ -2256,9 +2290,11 @@
                 case 'autonomy':
                     return formatNumber(raw.recent180dEvents || raw.totalEvents || 0);
                 case 'news':
+                    return formatNumber(raw.newsArticles || raw.articleCount || 0);
                 case 'regulation':
+                    return formatNumber(raw.regulationArticles || raw.articleCount || 0);
                 case 'incidents':
-                    return formatNumber(raw.articleCount || 0);
+                    return formatNumber(raw.incidentArticles || raw.articleCount || 0);
                 case 'funding':
                     return formatNumber(raw.totalScore || 0);
                 case 'capabilities':
@@ -2339,25 +2375,36 @@
             renderTrendChart();
         }
 
+        function setupCanvasHiDPI(canvas) {
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return null;
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const w = Math.max(1, Math.floor(rect.width - 40));
+            const h = Math.max(1, Math.floor(rect.height - 40));
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, w, h);
+            return { ctx, w, h };
+        }
+
         function renderProjectionChart() {
             const canvas = document.getElementById('projectionChart');
             if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
-
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = Math.max(1, Math.floor(rect.width - 40));
-            canvas.height = Math.max(1, Math.floor(rect.height - 40));
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const setup = setupCanvasHiDPI(canvas);
+            if (!setup) return;
+            const { ctx, w: width, h: height } = setup;
 
             ctx.strokeStyle = 'rgba(255,255,255,0.05)';
             ctx.lineWidth = 1;
             for (let i = 0; i <= 10; i++) {
-                const y = (canvas.height / 10) * i;
+                const y = (height / 10) * i;
                 ctx.beginPath();
                 ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
+                ctx.lineTo(width, y);
                 ctx.stroke();
             }
 
@@ -2375,26 +2422,26 @@
                 data.push(value);
             }
 
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
             gradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
             gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
 
             ctx.beginPath();
-            ctx.moveTo(0, canvas.height);
+            ctx.moveTo(0, height);
             data.forEach((point, index) => {
-                const x = (canvas.width / (data.length - 1)) * index;
-                const y = canvas.height - (point / 100) * canvas.height;
+                const x = (width / (data.length - 1)) * index;
+                const y = height - (point / 100) * height;
                 ctx.lineTo(x, y);
             });
-            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(width, height);
             ctx.closePath();
             ctx.fillStyle = gradient;
             ctx.fill();
 
             ctx.beginPath();
             data.forEach((point, index) => {
-                const x = (canvas.width / (data.length - 1)) * index;
-                const y = canvas.height - (point / 100) * canvas.height;
+                const x = (width / (data.length - 1)) * index;
+                const y = height - (point / 100) * height;
                 if (index === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
             });
@@ -2403,29 +2450,24 @@
             ctx.stroke();
 
             ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.font = '10px JetBrains Mono';
+            ctx.font = '10px JetBrains Mono, monospace';
             ctx.fillText('Next 24 Hours (Job Market Projection)', 10, 15);
         }
 
         function renderTrendChart() {
             const canvas = document.getElementById('trendChart');
             if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
-
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = Math.max(1, Math.floor(rect.width - 40));
-            canvas.height = Math.max(1, Math.floor(rect.height - 40));
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const setup = setupCanvasHiDPI(canvas);
+            if (!setup) return;
+            const { ctx, w: width, h: height } = setup;
 
             ctx.strokeStyle = 'rgba(255,255,255,0.05)';
             ctx.lineWidth = 1;
             for (let i = 0; i <= 10; i++) {
-                const y = (canvas.height / 10) * i;
+                const y = (height / 10) * i;
                 ctx.beginPath();
                 ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
+                ctx.lineTo(width, y);
                 ctx.stroke();
             }
 
@@ -2433,47 +2475,47 @@
 
             if (data.length === 0) {
                 ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                ctx.font = '13px JetBrains Mono';
+                ctx.font = '13px JetBrains Mono, monospace';
                 ctx.textAlign = 'center';
-                ctx.fillText('Collecting data - trend will appear after multiple refreshes', canvas.width / 2, canvas.height / 2);
+                ctx.fillText('Collecting data - trend will appear after multiple refreshes', width / 2, height / 2);
                 ctx.textAlign = 'start';
                 return;
             }
 
             if (data.length === 1) {
-                const pointY = canvas.height - (data[0] / 100) * canvas.height;
-                const pointX = canvas.width / 2;
+                const pointY = height - (data[0] / 100) * height;
+                const pointX = width / 2;
                 ctx.beginPath();
                 ctx.arc(pointX, pointY, 4, 0, Math.PI * 2);
                 ctx.fillStyle = getCssVar('--accent-red', '#ff3366');
                 ctx.fill();
                 ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                ctx.font = '10px JetBrains Mono';
+                ctx.font = '10px JetBrains Mono, monospace';
                 ctx.fillText('1 data point collected', 10, 15);
                 return;
             }
 
             const denominator = Math.max(1, data.length - 1);
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
             gradient.addColorStop(0, 'rgba(255, 51, 102, 0.3)');
             gradient.addColorStop(1, 'rgba(255, 51, 102, 0)');
 
             ctx.beginPath();
-            ctx.moveTo(0, canvas.height);
+            ctx.moveTo(0, height);
             data.forEach((point, index) => {
-                const x = (canvas.width / denominator) * index;
-                const y = canvas.height - (point / 100) * canvas.height;
+                const x = (width / denominator) * index;
+                const y = height - (point / 100) * height;
                 ctx.lineTo(x, y);
             });
-            ctx.lineTo(canvas.width, canvas.height);
+            ctx.lineTo(width, height);
             ctx.closePath();
             ctx.fillStyle = gradient;
             ctx.fill();
 
             ctx.beginPath();
             data.forEach((point, index) => {
-                const x = (canvas.width / denominator) * index;
-                const y = canvas.height - (point / 100) * canvas.height;
+                const x = (width / denominator) * index;
+                const y = height - (point / 100) * height;
                 if (index === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
             });
@@ -2482,10 +2524,10 @@
             ctx.stroke();
 
             ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.font = '10px JetBrains Mono';
+            ctx.font = '10px JetBrains Mono, monospace';
             ctx.fillText('Employment Disruption Trend', 10, 15);
             const successCount = Object.values(dataSources).filter(source => source.success).length;
-            ctx.fillText(`Data: ${successCount}/${SOURCES.length} sources`, Math.max(10, canvas.width - 130), canvas.height - 5);
+            ctx.fillText(`Data: ${successCount}/${SOURCES.length} sources`, Math.max(10, width - 130), height - 5);
         }
 
         function getSourceStatus(sourceState) {
@@ -2509,7 +2551,7 @@
                 case 'ailayoffs':
                     return `${formatNumber(raw.recent180dEvents || 0)} events / ${formatNumber(raw.recent180dLosses || 0)} jobs (180d), latest ${raw.latestEventDate || '--'}`;
                 case 'gdelt':
-                    return `${formatNumber(raw.articleCount || 0)} matching news articles`;
+                    return `${formatNumber(raw.articleCount || 0)} articles (news: ${formatNumber(raw.newsArticles || 0)}, reg: ${formatNumber(raw.regulationArticles || 0)}, econ: ${formatNumber(raw.incidentArticles || 0)})`;
                 case 'openrouter':
                     return `${formatNumber(raw.recent || 0)} recent models (${formatNumber(raw.totalModels || 0)} total)`;
                 case 'github':
@@ -2682,15 +2724,13 @@
             form.addEventListener('submit', event => {
                 event.preventDefault();
 
-                const emailInput = document.getElementById('suggestionEmail');
                 const suggestionInput = document.getElementById('suggestionText');
                 const status = document.getElementById('suggestionStatus');
                 const suggestionText = suggestionInput ? suggestionInput.value.trim() : '';
-                const emailText = emailInput ? emailInput.value.trim() : '';
 
                 if (!suggestionText) {
                     if (status) {
-                        status.textContent = 'Please add a signal suggestion before submitting.';
+                        status.textContent = 'Please add a signal suggestion before saving.';
                         status.style.color = 'var(--accent-yellow)';
                     }
                     return;
@@ -2698,7 +2738,6 @@
 
                 const payload = {
                     submittedAt: new Date().toISOString(),
-                    email: emailText || null,
                     suggestion: suggestionText
                 };
 
@@ -2726,17 +2765,18 @@
 
         // Cookie handling
         function checkCookies() {
-            if (localStorage.getItem('cookiesAccepted')) {
+            if (localStorage.getItem('cookieBannerDismissed')) {
                 document.getElementById('cookieBanner').classList.add('hidden');
             }
         }
 
         function acceptCookies() {
-            localStorage.setItem('cookiesAccepted', 'true');
+            localStorage.setItem('cookieBannerDismissed', 'true');
             document.getElementById('cookieBanner').classList.add('hidden');
         }
 
         function rejectCookies() {
+            localStorage.setItem('cookieBannerDismissed', 'true');
             document.getElementById('cookieBanner').classList.add('hidden');
         }
 
@@ -2767,7 +2807,11 @@
             fetchAllData();
         }
 
-        window.addEventListener('resize', renderCharts);
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(renderCharts, 150);
+        });
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
